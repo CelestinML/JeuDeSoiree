@@ -1,4 +1,4 @@
-package com.example.jeudesoiree
+package com.example.schlouky
 
 import org.junit.Test
 
