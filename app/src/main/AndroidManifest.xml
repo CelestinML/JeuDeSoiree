@@ -10,8 +10,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Schlouky">
         <activity
-            android:name=".FullscreenActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:name=".GameActivity"
+            android:configChanges="keyboardHidden|screenSize"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Schlouky.Fullscreen">
