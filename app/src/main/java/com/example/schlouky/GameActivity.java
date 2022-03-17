@@ -1,7 +1,6 @@
 package com.example.schlouky;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,7 +23,7 @@ public class GameActivity extends AppCompatActivity {
 
     int questionNb;
 
-    float threshold = 1;
+    float threshold = 300;
     float x1, x2, y1, y2, dx, dy;
     String direction;
 
@@ -64,34 +63,44 @@ public class GameActivity extends AppCompatActivity {
                             if (Math.abs(dx) > threshold) {
                                 if(dx<0) {
                                     //Next question
-                                    currentQuestionIndex = Math.min(questionNb, currentQuestionIndex +1);
+                                    currentQuestionIndex++;
                                     if(currentQuestionIndex == questionNb){
                                         getSupportFragmentManager().beginTransaction()
+                                                .setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
                                                 .setReorderingAllowed(true)
                                                 .add(R.id.question_location, EndGameFragment.class, null)
                                                 .commit();
                                     }
-                                    else{
+                                    else if (currentQuestionIndex < questionNb) {
                                         Bundle bundle = new Bundle();
                                         bundle.putString("question", questions.get(currentQuestionIndex));
 
                                         getSupportFragmentManager().beginTransaction()
+                                                .setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
                                                 .setReorderingAllowed(true)
                                                 .add(R.id.question_location, QuestionFragment.class, bundle)
                                                 .commit();
                                     }
-
+                                    else {
+                                        currentQuestionIndex = questionNb;
+                                    }
                                 }
                                 else {
                                     //Previous question
-                                    currentQuestionIndex = Math.max(0,currentQuestionIndex-1);
-                                    Bundle bundle = new Bundle();
-                                    bundle.putString("question", questions.get(currentQuestionIndex));
+                                    currentQuestionIndex--;
+                                    if (currentQuestionIndex >= 0) {
+                                        Bundle bundle = new Bundle();
+                                        bundle.putString("question", questions.get(currentQuestionIndex));
 
-                                    getSupportFragmentManager().beginTransaction()
-                                            .setReorderingAllowed(true)
-                                            .add(R.id.question_location, QuestionFragment.class, bundle)
-                                            .commit();
+                                        getSupportFragmentManager().beginTransaction()
+                                                .setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left)
+                                                .setReorderingAllowed(true)
+                                                .add(R.id.question_location, QuestionFragment.class, bundle)
+                                                .commit();
+                                    }
+                                    else {
+                                        currentQuestionIndex = 0;
+                                    }
                                 }
                             }
                         }
