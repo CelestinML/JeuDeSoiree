@@ -3,7 +3,9 @@ package com.example.schlouky;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import java.util.ArrayList;
 
@@ -36,5 +38,10 @@ public class GameActivity extends AppCompatActivity {
                 .setReorderingAllowed(true)
                 .add(R.id.question_location, QuestionFragment.class, bundle)
                 .commit();
+    }
+
+    public void StartSetupActivity(View view) {
+        Intent intent = new Intent(this, SetupActivity.class);
+        startActivity(intent);
     }
 }
