@@ -3,14 +3,8 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Cours/UQAC/S2/PlateformesMobiles/Schlouky/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.2911458333333333" />
-        <entry key="..\:/Cours/UQAC/S2/PlateformesMobiles/Schlouky/app/src/main/res/layout/activity_fullscreen.xml" value="0.16032608695652173" />
-        <entry key="..\:/Cours/UQAC/S2/PlateformesMobiles/Schlouky/app/src/main/res/layout/activity_game.xml" value="0.24728260869565216" />
-        <entry key="..\:/Cours/UQAC/S2/PlateformesMobiles/Schlouky/app/src/main/res/layout/activity_setup.xml" value="0.264" />
-        <entry key="..\:/Cours/UQAC/S2/PlateformesMobiles/Schlouky/app/src/main/res/layout/fragment_end_game.xml" value="0.24728260869565216" />
-        <entry key="..\:/Cours/UQAC/S2/PlateformesMobiles/Schlouky/app/src/main/res/layout/fragment_player_info.xml" value="0.24728260869565216" />
-        <entry key="..\:/Cours/UQAC/S2/PlateformesMobiles/Schlouky/app/src/main/res/layout/fragment_question.xml" value="0.24728260869565216" />
-        <entry key="..\:/Cours/UQAC/S2/PlateformesMobiles/Schlouky/app/src/main/res/layout/loading_screen.xml" value="0.26811594202898553" />
+        <entry key="..\:/Cours/UQAC/S2/PlateformesMobiles/Exercices/Schlouky/app/src/main/res/layout/activity_main.xml" value="0.14375" />
+        <entry key="..\:/Cours/UQAC/S2/PlateformesMobiles/Schlouky/app/src/main/res/layout/activity_main.xml" value="0.14764492753623187" />
       </map>
     </option>
   </component>

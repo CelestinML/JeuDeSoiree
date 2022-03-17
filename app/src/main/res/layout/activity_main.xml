@@ -4,13 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_gravity="center"
     android:background="@color/black">
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="184dp"
-        android:layout_height="199dp"
-        android:src="@drawable/logo_placeholder"
-        tools:layout_editor_absoluteX="113dp"
-        tools:layout_editor_absoluteY="245dp" />
+    <RelativeLayout
+        android:id="@+id/RelativeLayout01"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black">
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="200dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/logo_placeholder"
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
