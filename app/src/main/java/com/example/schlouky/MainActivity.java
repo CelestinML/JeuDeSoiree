@@ -22,9 +22,18 @@ public class MainActivity extends AppCompatActivity {
         db.addPlayer("Eva", true);
         db.addPlayer("Mathieu", true);
 
-        db.addQuestion("%s doit mettre une grosse droite à %s", 2, 0);
+        //TODO: changer le format des questions pour faciliter le remplacer des noms et nombres de gorgées
+        //par exemple utiliser {player1} et {schloukCount}
 
-        String test = db.getQuestion();
-        Toast.makeText(this, test, Toast.LENGTH_LONG).show();
+        db.addQuestion("%s doit mettre une grosse droite à %s.", 2, 0);
+        db.addQuestion("%s choisi la plus magnifique entre %s et %s. Le gagnant boit 2 gorgées.", 3, 2);
+        db.addQuestion("%s ne doit pas oublier le petit bonhomme.", 1, 1);
+        db.addQuestion("Duel de regards entre %s et %s. Le perdant boit 4 gorgées.", 2, 2);
+        db.addQuestion("Duel de regards entre %s et %s.", 2, 0);
+
+        Toast.makeText(this, db.getQuestion(3, 2), Toast.LENGTH_LONG).show();
+        Toast.makeText(this, db.getQuestion(1, 3), Toast.LENGTH_LONG).show();
+        Toast.makeText(this, db.getQuestion(2, 0), Toast.LENGTH_LONG).show();
+        Toast.makeText(this, db.getQuestion(2, 2), Toast.LENGTH_LONG).show();
     }
 }

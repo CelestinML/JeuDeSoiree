@@ -73,25 +73,54 @@ public class DatabaseManager extends SQLiteOpenHelper {
         database.insert(TABLE_NAME, null, values);
     }
 
-    public String getQuestion() {
+    public String getQuestion(int playerCount, int drinkingPlayerCount) {
         SQLiteDatabase database = this.getReadableDatabase();
-        String request = String.format("SELECT * FROM %s;", TABLE_NAME);
+        String request = String.format("SELECT %s, %s FROM %s WHERE %s = %d AND %s <= %d;",
+                ID_FIELD, QUESTION_FIELD, TABLE_NAME, PLAYER_COUNT_FIELD, playerCount, DRINKING_PLAYER_COUNT_FIELD, drinkingPlayerCount);
+
         try (Cursor result = database.rawQuery(request, null)) {
-            if (result.getCount() > 0) {
-                result.moveToNext();
-                String questionString = result.getString(1);
+            int questionsCount = result.getCount();
+            if (questionsCount > 0) {
+                //loops through all the query answers and fill the questions list
+                List<String> questionsList = new ArrayList<>(questionsCount);
+                while(result.moveToNext())
+                {
+                    questionsList.add(result.getString(1));
+                }
 
-                //TODO: ajouter une vérification du nombre de joueurs
-                return String.format(questionString, playerList.get(0), playerList.get(1));
+                //selects a random question
+                int randomIndex = (int)(Math.random() * questionsCount);
+                String rawQuestion = questionsList.get(randomIndex);
 
-                //while(result.moveToNext())
+                //TODO: changer le format des questions pour faciliter le remplacer des noms et nombres de gorgées
+                //par exemple utiliser {player1} et {schloukCount}
+
+                if(playerCount == 1)
+                {
+                    return String.format(rawQuestion, pickRandomPlayer());
+                }
+                if(playerCount == 2)
+                {
+                    return String.format(rawQuestion, pickRandomPlayer(), pickRandomPlayer());
+                }
+                if(playerCount == 3)
+                {
+                    return String.format(rawQuestion, pickRandomPlayer(), pickRandomPlayer(), pickRandomPlayer());
+                }
+
             }
         }
-        return "";
+        return "Aucune question trouvée avec ces paramètres."; //if no question was found
     }
 
     public void addPlayer(String name, boolean isDrinking) {
         playerList.add(name);
+    }
+
+    //TODO: choisir les joueurs au hasard en prenant en compte la proba pondérée et eviter d'avoir plusieurs fois la même personne dans une question
+    private String pickRandomPlayer()
+    {
+        return playerList.get((int)(Math.random() * playerList.size()));
     }
 
     @Override
