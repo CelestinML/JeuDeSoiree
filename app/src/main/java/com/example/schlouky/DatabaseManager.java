@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class DatabaseManager extends SQLiteOpenHelper {
@@ -77,7 +78,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     public String getQuestion(int playerCount, int drinkingPlayerCount) {
         SQLiteDatabase database = this.getReadableDatabase();
-        String request = String.format("SELECT %s, %s FROM %s WHERE %s = %d AND %s <= %d;",
+        String request = String.format("SELECT %s, %s FROM %s WHERE %s >= %d AND %s <= %d;",
                 ID_FIELD, QUESTION_FIELD, TABLE_NAME, PLAYER_COUNT_FIELD, playerCount, DRINKING_PLAYER_COUNT_FIELD, drinkingPlayerCount);
 
         try (Cursor result = database.rawQuery(request, null)) {
@@ -93,36 +94,28 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 //selects a random question
                 int randomIndex = (int)(Math.random() * questionsCount);
                 String rawQuestion = questionsList.get(randomIndex);
-
-                //TODO: changer le format des questions pour faciliter le remplacer des noms et nombres de gorgées
-                //par exemple utiliser {player1} et {schloukCount}
-
-                if(playerCount == 1)
-                {
-                    return String.format(rawQuestion, pickRandomPlayer());
-                }
-                if(playerCount == 2)
-                {
-                    return String.format(rawQuestion, pickRandomPlayer(), pickRandomPlayer());
-                }
-                if(playerCount == 3)
-                {
-                    return String.format(rawQuestion, pickRandomPlayer(), pickRandomPlayer(), pickRandomPlayer());
-                }
-
+                String filledQuestion = getFilledQuestion(rawQuestion);
+                return filledQuestion;
             }
         }
         return "Aucune question trouvée avec ces paramètres."; //if no question was found
     }
 
-    public void addPlayer(String name, boolean isDrinking) {
-        playerList.add(name);
+    private String getFilledQuestion(String rawQuestion)
+    {
+        List<String> randomPlayerList = new ArrayList<>(playerList);
+        Collections.shuffle(randomPlayerList);
+
+        String res = rawQuestion;
+        res = res.replace("{joueur1}", randomPlayerList.get(0));
+        res = res.replace("{joueur2}", randomPlayerList.get(1));
+        res = res.replace("{joueur3}", randomPlayerList.get(2));
+        res = res.replace("{glou}", String.valueOf((int)(1 + Math.random() * 4)));
+        return res;
     }
 
-    //TODO: choisir les joueurs au hasard en prenant en compte la proba pondérée et eviter d'avoir plusieurs fois la même personne dans une question
-    private String pickRandomPlayer()
-    {
-        return playerList.get((int)(Math.random() * playerList.size()));
+    public void addPlayer(String name, boolean isDrinking) {
+        playerList.add(name);
     }
 
     @Override

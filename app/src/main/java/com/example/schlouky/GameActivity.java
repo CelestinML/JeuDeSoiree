@@ -13,9 +13,8 @@ import java.util.ArrayList;
 
 public class GameActivity extends AppCompatActivity {
 
-    final int questionNb = 5;
+    final int questionNb = 20;
     int playerNb = 3;
-    int notDrinkingPlayerNb = 1;
     private ArrayList<String> questions = new ArrayList<>();
 
     int currentQuestionIndex = 0;
@@ -120,17 +119,14 @@ public class GameActivity extends AppCompatActivity {
         db.addPlayer("Eva", true);
         db.addPlayer("Mathieu", true);
 
-        //TODO: changer le format des questions pour faciliter le remplacer des noms et nombres de gorgées
-        //par exemple utiliser {player1} et {schloukCount}
-
-        db.addQuestion("%s doit mettre une grosse droite à %s.", 2, 0);
-        db.addQuestion("%s choisi la plus magnifique entre %s et %s. Le gagnant boit 2 gorgées.", 3, 2);
-        db.addQuestion("%s ne doit pas oublier le petit bonhomme.", 1, 1);
-        db.addQuestion("Duel de regards entre %s et %s. Le perdant boit 4 gorgées.", 2, 2);
-        db.addQuestion("Duel de regards entre %s et %s.", 2, 0);
+        db.addQuestion("{joueur1} doit mettre une grosse droite à {joueur2}.", 2, 0);
+        db.addQuestion("{joueur1} choisi la plus magnifique entre {joueur2} et {joueur3}. Le gagnant boit {glou} gorgées. Je rapelle que c'est a {joueur1} de choisir.", 3, 2);
+        db.addQuestion("{joueur1} ne doit pas oublier le petit bonhomme.", 1, 1);
+        db.addQuestion("Duel de regards entre {joueur1} et {joueur2}. Le perdant boit {glou} gorgées.", 2, 2);
+        db.addQuestion("Duel de regards entre {joueur1} et {joueur2}.", 2, 0);
 
         for (int i = 0; i < questionNb; i++) {
-            String currentQuestion = db.getQuestion(Random(1, playerNb), Random(0, notDrinkingPlayerNb));
+            String currentQuestion = db.getQuestion(Random(1, playerNb),3);
             if (currentQuestion != "Aucune question trouvée avec ces paramètres.") {
                 questions.add(currentQuestion);
             }
