@@ -13,10 +13,16 @@ import java.util.ArrayList;
 
 public class GameActivity extends AppCompatActivity {
 
-    final int questionNb = 5;
+    final int questionNb = 3;
     int playerNb = 5;
     int notDrinkingPlayerNb = 1;
-    ArrayList<String> questions = new ArrayList<String>();
+    ArrayList<String> questions = new ArrayList<String>() {
+        {
+            add("hey slt comment ça ? Tu fais quoi aujourd'hui ? Oh cool trop bien j'adore ta vie");
+            add("slt");
+            add("yo");
+        }
+    };
 
     int currentQuestionIndex = 0;
 
@@ -30,7 +36,7 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        LoadQuestions();
+        //LoadQuestions();
 
         Bundle bundle = new Bundle();
         bundle.putString("question", questions.get(currentQuestionIndex));

@@ -41,12 +41,12 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/replay"
         android:layout_width="232dp"
         android:layout_height="68dp"
         android:layout_marginBottom="50dp"
         android:backgroundTint="@color/white"
-        android:text="Button"
+        android:text="Rejouer"
         android:textColor="@color/black"
         android:textSize="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
