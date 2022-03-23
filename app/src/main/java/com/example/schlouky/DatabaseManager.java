@@ -46,12 +46,14 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqlDatabase) {
-        setupDatabase();
+        setupDatabase(sqlDatabase);
     }
 
     public void setupDatabase() {
-        SQLiteDatabase database = this.getWritableDatabase();
+        setupDatabase(this.getWritableDatabase());
+    }
 
+    public void setupDatabase(SQLiteDatabase database) {
         //we first delete the table if it exists
         String dropRequest = String.format("DROP TABLE IF EXISTS %s;", TABLE_NAME);
         database.execSQL(dropRequest);
