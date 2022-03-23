@@ -142,4 +142,8 @@ public class GameActivity extends AppCompatActivity {
         questions.add(db.getQuestion(3, 3));
         questions.add(db.getQuestion(2, 0));
     }
+
+    private int Random(int inclMin, int inclMax) {
+        return inclMin + (int)(Math.random() * ((inclMax - inclMin) + 1));
+    }
 }
