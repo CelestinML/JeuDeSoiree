@@ -13,16 +13,10 @@ import java.util.ArrayList;
 
 public class GameActivity extends AppCompatActivity {
 
-    final int questionNb = 3;
-    int playerNb = 5;
+    final int questionNb = 10;
+    int playerNb = 3;
     int notDrinkingPlayerNb = 1;
-    ArrayList<String> questions = new ArrayList<String>() {
-        {
-            add("hey slt comment ça ? Tu fais quoi aujourd'hui ? Oh cool trop bien j'adore ta vie");
-            add("slt");
-            add("yo");
-        }
-    };
+    private ArrayList<String> questions = new ArrayList<>();
 
     int currentQuestionIndex = 0;
 
@@ -36,7 +30,7 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        //LoadQuestions();
+        LoadQuestions();
 
         Bundle bundle = new Bundle();
         bundle.putString("question", questions.get(currentQuestionIndex));
@@ -136,9 +130,16 @@ public class GameActivity extends AppCompatActivity {
         db.addQuestion("Duel de regards entre %s et %s. Le perdant boit 4 gorgées.", 2, 2);
         db.addQuestion("Duel de regards entre %s et %s.", 2, 0);
 
-        for (int i = 0; i < questionNb; i++) {
-            questions.add(db.getQuestion(ThreadLocalRandom.current().nextInt(0, playerNb + 1),
-                    ThreadLocalRandom.current().nextInt(0, notDrinkingPlayerNb + 1)));
-        }
+        //TODO: changer ce truc SALE
+        questions.add(db.getQuestion(2, 1));
+        questions.add(db.getQuestion(3, 2));
+        questions.add(db.getQuestion(2, 0));
+        questions.add(db.getQuestion(3, 3));
+        questions.add(db.getQuestion(2, 0));
+        questions.add(db.getQuestion(2, 1));
+        questions.add(db.getQuestion(3, 2));
+        questions.add(db.getQuestion(2, 0));
+        questions.add(db.getQuestion(3, 3));
+        questions.add(db.getQuestion(2, 0));
     }
 }
