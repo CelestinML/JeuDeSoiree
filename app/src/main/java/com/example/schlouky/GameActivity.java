@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 public class GameActivity extends AppCompatActivity {
 
-    final int questionNb = 10;
+    final int questionNb = 5;
     int playerNb = 3;
     int notDrinkingPlayerNb = 1;
     private ArrayList<String> questions = new ArrayList<>();
@@ -22,7 +22,6 @@ public class GameActivity extends AppCompatActivity {
 
     float threshold = 300;
     float x1, x2, y1, y2, dx, dy;
-    String direction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,17 +129,15 @@ public class GameActivity extends AppCompatActivity {
         db.addQuestion("Duel de regards entre %s et %s. Le perdant boit 4 gorgées.", 2, 2);
         db.addQuestion("Duel de regards entre %s et %s.", 2, 0);
 
-        //TODO: changer ce truc SALE
-        questions.add(db.getQuestion(2, 1));
-        questions.add(db.getQuestion(3, 2));
-        questions.add(db.getQuestion(2, 0));
-        questions.add(db.getQuestion(3, 3));
-        questions.add(db.getQuestion(2, 0));
-        questions.add(db.getQuestion(2, 1));
-        questions.add(db.getQuestion(3, 2));
-        questions.add(db.getQuestion(2, 0));
-        questions.add(db.getQuestion(3, 3));
-        questions.add(db.getQuestion(2, 0));
+        for (int i = 0; i < questionNb; i++) {
+            String currentQuestion = db.getQuestion(Random(1, playerNb), Random(0, notDrinkingPlayerNb));
+            if (currentQuestion != "Aucune question trouvée avec ces paramètres.") {
+                questions.add(currentQuestion);
+            }
+            else {
+                i--;
+            }
+        }
     }
 
     private int Random(int inclMin, int inclMax) {
