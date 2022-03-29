@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.Toast;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -22,11 +24,23 @@ public class GameActivity extends AppCompatActivity {
     float threshold = 300;
     float x1, x2, y1, y2, dx, dy;
 
+    ArrayList<Player> players = new ArrayList<Player>();
+    ArrayList<String> dede;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_game);
+
+        // Récupération de la liste des joueurs depuis SetupActivity"
+        players = getIntent().getParcelableArrayListExtra("UniqueKey");
+        /*for (Player p:players)
+        {
+            String str = "[" + p.name + "]" + "{" + p.buveur + "}";
+            Toast.makeText(GameActivity.this, str, Toast.LENGTH_SHORT).show();
+        }*/
 
         LoadQuestions();
 
@@ -113,11 +127,17 @@ public class GameActivity extends AppCompatActivity {
         DatabaseManager db = DatabaseManager.getInstance(this);
         db.setupDatabase();
 
-        db.addPlayer("Stéphane", true);
+        /*db.addPlayer("Stéphane", true);
         db.addPlayer("Robin", false);
         db.addPlayer("Célestin", true);
         db.addPlayer("Eva", true);
-        db.addPlayer("Mathieu", true);
+        db.addPlayer("Mathieu", true);*/
+
+        // Ajout des joueurs
+        for (Player p:players)
+        {
+            db.addPlayer(p.name, p.buveur);
+        }
 
         db.addQuestion("{joueur1} doit mettre une grosse droite à {joueur2}.", 2, 0);
         db.addQuestion("{joueur1} choisi la plus magnifique entre {joueur2} et {joueur3}. Le gagnant boit {glou} gorgées. Je rapelle que c'est a {joueur1} de choisir.", 3, 2);
