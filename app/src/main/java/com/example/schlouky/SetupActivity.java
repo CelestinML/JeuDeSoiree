@@ -47,9 +47,6 @@ public class SetupActivity extends AppCompatActivity {
             previousPlayers = getIntent().getParcelableArrayListExtra("Players");
         }
 
-        //Toast.makeText(SetupActivity.this, "players.size() = " + players.size(), Toast.LENGTH_SHORT).show();
-        Toast.makeText(SetupActivity.this, "nbrPlayers = " + nbrPlayers, Toast.LENGTH_SHORT).show();
-
         // Création de la fenêtre de dialogue permettant d'ajouter des joueurs
         //buildDialog();
 
