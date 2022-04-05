@@ -35,7 +35,7 @@ public class GameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_game);
 
         // Récupération de la liste des joueurs depuis SetupActivity"
-        players = getIntent().getParcelableArrayListExtra("UniqueKey");
+        players = getIntent().getParcelableArrayListExtra("Players");
         /*for (Player p:players)
         {
             String str = "[" + p.name + "]" + "{" + p.buveur + "}";
@@ -120,6 +120,7 @@ public class GameActivity extends AppCompatActivity {
 
     public void StartSetupActivity(View view) {
         Intent intent = new Intent(this, SetupActivity.class);
+        intent.putParcelableArrayListExtra("Players", players);
         startActivity(intent);
     }
 
@@ -158,5 +159,10 @@ public class GameActivity extends AppCompatActivity {
 
     private int Random(int inclMin, int inclMax) {
         return inclMin + (int)(Math.random() * ((inclMax - inclMin) + 1));
+    }
+
+    @Override
+    public void onBackPressed() {
+        StartSetupActivity(null);
     }
 }
