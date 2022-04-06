@@ -83,6 +83,7 @@ public class GameActivity extends AppCompatActivity {
                                         Bundle bundle = new Bundle();
                                         bundle.putString("question", questions.get(currentQuestionIndex));
 
+
                                         getSupportFragmentManager().beginTransaction()
                                                 .setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
                                                 .setReorderingAllowed(true)
@@ -125,7 +126,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void LoadQuestions() {
-        DatabaseManager db = DatabaseManager.getInstance(this);
+        DatabaseManager db = DatabaseManager.getInstance(this, players);
         db.setupDatabase();
 
         /*db.addPlayer("Stéphane", true);
@@ -134,12 +135,6 @@ public class GameActivity extends AppCompatActivity {
         db.addPlayer("Eva", true);
         db.addPlayer("Mathieu", true);*/
 
-        // Ajout des joueurs
-        for (Player p:players)
-        {
-            db.addPlayer(p.name, p.buveur);
-        }
-
         db.addQuestion("{joueur1} doit mettre une grosse droite à {joueur2}.", 2, 0);
         db.addQuestion("{joueur1} choisi la plus magnifique entre {joueur2} et {joueur3}. Le gagnant boit {glou} gorgées. Je rapelle que c'est a {joueur1} de choisir.", 3, 2);
         db.addQuestion("{joueur1} ne doit pas oublier le petit bonhomme.", 1, 1);
@@ -147,7 +142,7 @@ public class GameActivity extends AppCompatActivity {
         db.addQuestion("Duel de regards entre {joueur1} et {joueur2}.", 2, 0);
 
         for (int i = 0; i < questionNb; i++) {
-            String currentQuestion = db.getQuestion(Random(1, playerNb),3);
+            String currentQuestion = db.getQuestion(Random(1, playerNb), 3);
             if (currentQuestion != "Aucune question trouvée avec ces paramètres.") {
                 questions.add(currentQuestion);
             }

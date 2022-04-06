@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Pair;
 
 import androidx.annotation.Nullable;
 
@@ -28,18 +29,18 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private static final String DRINKING_PLAYER_COUNT_FIELD = "drinking_player_count";
 
     //Players data
-    private List<String> playerList;
+    public List<Player> players;
 
-    public DatabaseManager(Context context) {
+    public DatabaseManager(Context context, ArrayList<Player> players) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.getWritableDatabase();
-        playerList = new ArrayList<>();
+        this.players = players;
     }
 
     //singleton
-    public static DatabaseManager getInstance(Context context) {
+    public static DatabaseManager getInstance(Context context, ArrayList<Player> players) {
         if (instance == null) {
-            instance = new DatabaseManager(context);
+            instance = new DatabaseManager(context, players);
         }
 
         return instance;
@@ -103,19 +104,19 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     private String getFilledQuestion(String rawQuestion)
     {
-        List<String> randomPlayerList = new ArrayList<>(playerList);
+        List<Player> randomPlayerList = new ArrayList<>(players);
         Collections.shuffle(randomPlayerList);
 
         String res = rawQuestion;
-        res = res.replace("{joueur1}", randomPlayerList.get(0));
-        res = res.replace("{joueur2}", randomPlayerList.get(1));
-        res = res.replace("{joueur3}", randomPlayerList.get(2));
+        res = res.replace("{joueur1}", randomPlayerList.get(0).name);
+        res = res.replace("{joueur2}", randomPlayerList.get(1).name);
+        res = res.replace("{joueur3}", randomPlayerList.get(2).name);
         res = res.replace("{glou}", String.valueOf((int)(1 + Math.random() * 4)));
         return res;
     }
 
-    public void addPlayer(String name, boolean isDrinking) {
-        playerList.add(name);
+    public void addPlayer(Player player) {
+        players.add(player);
     }
 
     @Override
