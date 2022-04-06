@@ -1,10 +1,15 @@
 package com.example.schlouky;
 
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.provider.MediaStore;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -21,6 +26,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -35,6 +43,13 @@ public class SetupActivity extends AppCompatActivity {
     int nbrPlayers = 0;
     ArrayList<Player> previousPlayers;
     ArrayList<Player> players = new ArrayList<>();
+
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+
+    ImageView targetImageView;
+    String targetPlayerName;
+
+    ArrayList<View> playerCards = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -91,6 +106,7 @@ public class SetupActivity extends AppCompatActivity {
                 AddCard(player);
             }
         }
+        previousPlayers = null;
     }
 
     private void buildDialog() {
@@ -124,7 +140,7 @@ public class SetupActivity extends AppCompatActivity {
                             Toast.makeText(SetupActivity.this, "Ce nom est déjà pris par un autre joueur.", Toast.LENGTH_SHORT).show();
                         } else {
                             // Ajout d'un nouveau joueur si appuit sur ok
-                            AddCard(name.getText().toString(), buveur.isChecked());
+                            AddCard(name.getText().toString(), buveur.isChecked(), "");
 
                             // Si buveur a été décoché, on le coche par défaut pour la personne suivante
                             if (buveur.isChecked() == false) buveur.toggle();
@@ -138,12 +154,33 @@ public class SetupActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void AddCard(String name, boolean buveur) {
+    private void AddCard(String name, boolean buveur, String photoPath) {
         // Il y a un joueur de plus
         nbrPlayers++;
 
+        // Ajout du joueur et de ses informations dans la base de données
+        Player newPlayer = new Player(name, buveur, photoPath);
+        players.add(newPlayer);
+
         // Récupération du layout new_player_card et de ses éléments
         View view = getLayoutInflater().inflate(R.layout.new_player_card, null);
+
+        ImageView photoView = view.findViewById(R.id.imageView);
+
+        if (photoPath != "") {
+            Bitmap loadedPhoto = loadPhoto(photoPath);
+
+            if (loadedPhoto != null) {
+                photoView.setImageBitmap(loadedPhoto);
+            }
+        }
+
+        photoView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dispatchTakePictureIntent(photoView, name);
+            }
+        });
 
         // L'icone buveur + assignation
         ImageView buveurView = view.findViewById(R.id.buveur);
@@ -178,15 +215,14 @@ public class SetupActivity extends AppCompatActivity {
         // Ajout de la view card du joueur
         layout.addView(view);
 
-        // Ajout du joueur et de ses informations dans la base de données
-        players.add(new Player(name, buveur));
+        playerCards.add(view);
 
         // Activation du bouton pour commencer la partie si il y a au moins deux joueurs
         if (nbrPlayers >= 2) button_start.setVisibility(View.VISIBLE);
     }
 
     private void AddCard(Player player) {
-        AddCard(player.name, player.buveur);
+        AddCard(player.name, player.buveur, player.photoPath);
     }
 
     public void StartGameActivity(View view) {
@@ -265,4 +301,62 @@ public class SetupActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() { }
+
+    private void dispatchTakePictureIntent(ImageView imgView, String playerName) {
+        targetImageView = imgView;
+        targetPlayerName = playerName;
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        try {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        } catch (ActivityNotFoundException e) {
+            // display error state to the user
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            String imagePath = getGalleryPath() + targetPlayerName + ".png";
+            try (FileOutputStream out = new FileOutputStream(imagePath)) {
+
+                imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
+                // PNG is a lossless format, the compression factor (100) is ignored
+
+                for (int i = 0; i < players.size(); i++) {
+                    if (players.get(i).name == targetPlayerName) {
+                        players.get(i).photoPath = imagePath;
+                    }
+                }
+
+                targetImageView.setImageBitmap(imageBitmap);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static String getGalleryPath() {
+        return Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_DCIM + "/";
+    }
+
+    private void DestroyAllCards() {
+        for (int i = playerCards.size() - 1; i >= 0; i--) {
+            layout.removeView(playerCards.get(i));
+            playerCards.remove(i);
+        }
+    }
+
+    private Bitmap loadPhoto(String path) {
+        File imgFile = new  File(path);
+        if(imgFile.exists()){
+            return BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+        }
+        else {
+            return null;
+        }
+    }
 }
