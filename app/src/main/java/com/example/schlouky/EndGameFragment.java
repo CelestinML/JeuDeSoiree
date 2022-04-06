@@ -17,12 +17,12 @@ public class EndGameFragment extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.fragment_end_game, container, false);
         Button replayButton = (Button) view.findViewById(R.id.replay);
-        replayButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                StartSetupActivity();
-            }
-        });
+        //replayButton.setOnClickListener(new View.OnClickListener() {
+        //    @Override
+        //    public void onClick(View view) {
+        //        StartSetupActivity();
+        //    }
+        //});
         return view;
     }
 
