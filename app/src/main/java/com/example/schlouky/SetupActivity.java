@@ -312,12 +312,13 @@ public class SetupActivity extends AppCompatActivity {
                     public void onClick(View view) {
                         // TODO Do something
                         String playerOldName = nameView.getText().toString();
-                        if (PlayerAlreadyExist(namedialog.getText().toString(), playerOldName)) {
+                        String playerNewName = namedialog.getText().toString();
+                        if (PlayerAlreadyExist(playerNewName, playerOldName)) {
                             Toast.makeText(SetupActivity.this, "Ce nom est déjà pris par un autre joueur.", Toast.LENGTH_SHORT).show();
                         }
                         else {
                             // Assignation des nouvelles valeurs à la view du joueur déjà existante
-                            nameView.setText(namedialog.getText());
+                            nameView.setText(playerNewName);
                             // Temporaire, permet de changer l'image si non buveur
                             if (buveurdialog.isChecked() == false) {
                                 buveurView.setVisibility(View.INVISIBLE);
@@ -326,11 +327,20 @@ public class SetupActivity extends AppCompatActivity {
                             // Modification du joueur
                             for (int i = 0; i < players.size(); i++) {
                                 if (players.get(i).name == playerOldName) {
-                                    players.get(i).name = namedialog.getText().toString();
+                                    players.get(i).name = playerNewName;
                                     players.get(i).buveur = buveurdialog.isChecked();
                                     break;
                                 }
                             }
+
+                            //On actualise le listener de l'appareil photo avec le nouveau pseudo
+                            ImageView photoView = v.findViewById(R.id.imageView);
+                            photoView.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    dispatchTakePictureIntent(photoView, playerNewName);
+                                }
+                            });
 
                             // Si buveur a été décoché, on le coche par défaut pour la personne suivante
                             if (buveurdialog.isChecked() == false) buveurdialog.toggle();
