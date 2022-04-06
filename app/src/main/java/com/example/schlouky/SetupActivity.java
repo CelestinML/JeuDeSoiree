@@ -137,7 +137,7 @@ public class SetupActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         // TODO Do something
-                        if (PlayerAlreadyExist(name.getText().toString())) {
+                        if (PlayerAlreadyExist(name.getText().toString(), null)) {
                             Toast.makeText(SetupActivity.this, "Ce nom est déjà pris par un autre joueur.", Toast.LENGTH_SHORT).show();
                         } else {
                             // Ajout d'un nouveau joueur si appuit sur ok
@@ -206,7 +206,7 @@ public class SetupActivity extends AppCompatActivity {
                 layout.removeView(view);
 
                 // Désactivation du bouton pour commencer la partie si il y a moins de deux joueurs
-                if(nbrPlayers < minPlayers) button_start.setVisibility(View.INVISIBLE);
+                if (nbrPlayers < minPlayers) button_start.setVisibility(View.INVISIBLE);
 
                 // Suppression du joueur de la liste des joueurs
                 RemovePlayer(name);
@@ -217,20 +217,19 @@ public class SetupActivity extends AppCompatActivity {
         layout.addView(view);
 
         playerCards.add(view);
-            // La possibilité de cliquer sur la carte pour modifier le joueur
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View vieww) {
-                    ModifyPlayer(view);
-                }
-            });
 
-            // Ajout de la view card du joueur
-            layout.addView(view);
+        // La possibilité de cliquer sur la carte pour modifier le joueur
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View vieww) {
+                ModifyPlayer(view);
+            }
+        });
 
         // Activation du bouton pour commencer la partie si il y a au moins deux joueurs
         if (nbrPlayers >= minPlayers) button_start.setVisibility(View.VISIBLE);
     }
+
     private void AddCard(Player player) {
         AddCard(player.name, player.buveur, player.photoPath);
     }
@@ -249,10 +248,8 @@ public class SetupActivity extends AppCompatActivity {
     // Permet de supprimer un joueur de la liste des joueurs
     private void RemovePlayer(String name) {
         int indiceToRemove = 0;
-        for (Player p : players)
-        {
-            if(p.name.equals(name))
-            {
+        for (Player p : players) {
+            if (p.name.equals(name)) {
                 //String str = p.name + " est en PLS";
                 //Toast.makeText(SetupActivity.this, str, Toast.LENGTH_SHORT).show();
                 players.remove(indiceToRemove);
@@ -263,8 +260,13 @@ public class SetupActivity extends AppCompatActivity {
     }
 
     // Permet de ne pas avoir deux joueurs qui ont le même nom
-    private boolean PlayerAlreadyExist(String name) {
+    private boolean PlayerAlreadyExist(String name, String ignoredPlayer) {
         for (Player p : players) {
+            if (ignoredPlayer != null) {
+                if (p.name == ignoredPlayer) {
+                    continue;
+                }
+            }
             if (p.name.equals(name)) return true;
         }
         return false;
@@ -278,9 +280,6 @@ public class SetupActivity extends AppCompatActivity {
         // Le nom du joueur
         TextView nameView = v.findViewById(R.id.name);
 
-        // Suppression du joueur de la liste des joueurs
-        RemovePlayer(nameView.getText().toString());
-
         // Récupération du layout dialog et de ses éléments
         View viewdialog = getLayoutInflater().inflate(R.layout.dialog, null);
 
@@ -292,7 +291,7 @@ public class SetupActivity extends AppCompatActivity {
         Switch buveurdialog = viewdialog.findViewById(R.id.buveur);
 
 
-        if(buveurView.getVisibility() == View.INVISIBLE) buveurdialog.toggle();
+        if (buveurView.getVisibility() == View.INVISIBLE) buveurdialog.toggle();
 
         final AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(viewdialog)
@@ -312,26 +311,29 @@ public class SetupActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         // TODO Do something
-                        if(PlayerAlreadyExist(namedialog.getText().toString()))
-                        {
+                        String playerOldName = nameView.getText().toString();
+                        if (PlayerAlreadyExist(namedialog.getText().toString(), playerOldName)) {
                             Toast.makeText(SetupActivity.this, "Ce nom est déjà pris par un autre joueur.", Toast.LENGTH_SHORT).show();
                         }
-                        else
-                        {
+                        else {
                             // Assignation des nouvelles valeurs à la view du joueur déjà existante
                             nameView.setText(namedialog.getText());
                             // Temporaire, permet de changer l'image si non buveur
-                            if(buveurdialog.isChecked() == false)
-                            {
+                            if (buveurdialog.isChecked() == false) {
                                 buveurView.setVisibility(View.INVISIBLE);
-                            }
-                            else buveurView.setVisibility(View.VISIBLE);
+                            } else buveurView.setVisibility(View.VISIBLE);
 
-                            // Rajout du joueur modifié si appuit sur ok
-                            players.add(new Player(namedialog.getText().toString(), buveurdialog.isChecked()));
+                            // Modification du joueur
+                            for (int i = 0; i < players.size(); i++) {
+                                if (players.get(i).name == playerOldName) {
+                                    players.get(i).name = namedialog.getText().toString();
+                                    players.get(i).buveur = buveurdialog.isChecked();
+                                    break;
+                                }
+                            }
 
                             // Si buveur a été décoché, on le coche par défaut pour la personne suivante
-                            if(buveurdialog.isChecked() == false) buveurdialog.toggle();
+                            if (buveurdialog.isChecked() == false) buveurdialog.toggle();
                             //Dismiss once everything is OK.
                             dialog.dismiss();
                         }
@@ -341,9 +343,10 @@ public class SetupActivity extends AppCompatActivity {
         });
         dialog.show();
     }
-    
+
     @Override
-    public void onBackPressed() { }
+    public void onBackPressed() {
+    }
 
     private void dispatchTakePictureIntent(ImageView imgView, String playerName) {
         targetImageView = imgView;
@@ -386,19 +389,12 @@ public class SetupActivity extends AppCompatActivity {
         return Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_DCIM + "/";
     }
 
-    private void DestroyAllCards() {
-        for (int i = playerCards.size() - 1; i >= 0; i--) {
-            layout.removeView(playerCards.get(i));
-            playerCards.remove(i);
-        }
-    }
-
     private Bitmap loadPhoto(String path) {
-        File imgFile = new  File(path);
-        if(imgFile.exists()){
+        File imgFile = new File(path);
+        if (imgFile.exists()) {
             return BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-        }
-        else {
+        } else {
             return null;
         }
+    }
 }

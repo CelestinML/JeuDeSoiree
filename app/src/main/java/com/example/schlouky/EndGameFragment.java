@@ -30,5 +30,4 @@ public class EndGameFragment extends Fragment {
         Intent intent = new Intent(getContext(), SetupActivity.class);
         startActivity(intent);
     }
-
 }
