@@ -81,19 +81,26 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     public Question getRandomQuestion() {
-        List<Player> randomPlayerList = getRandomPlayers();
 
-        int playerCount = randomPlayerList.size();
-        int drinkingPlayerCount = 0;
-        for(int i = 0; i < playerCount; i++)
-        {
-            if(randomPlayerList.get(i).buveur)
+        String rawQuestion = "";
+        List<Player> randomPlayerList = new ArrayList<>();
+
+        while (rawQuestion.equals("")) {
+            randomPlayerList = getRandomPlayers();
+
+            int playerCount = randomPlayerList.size();
+            int drinkingPlayerCount = 0;
+            for(int i = 0; i < playerCount; i++)
             {
-                drinkingPlayerCount++;
+                if(randomPlayerList.get(i).buveur)
+                {
+                    drinkingPlayerCount++;
+                }
             }
+
+            rawQuestion = getRawQuestion(playerCount, drinkingPlayerCount);
         }
 
-        String rawQuestion = getRawQuestion(playerCount, drinkingPlayerCount);
         String filledQuestion = getFilledQuestion(rawQuestion, randomPlayerList);
 
         //mise a jour des chances des joueurs
@@ -112,7 +119,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     private List<Player> getRandomPlayers()
     {
-        int playerCount = 2 + (int)Math.round(Math.random());
+        int playerCount = (int)Math.floor(Math.random() * (Math.min(players.size(), 3) + 1));
 
         List<Player> randomPlayerList = new ArrayList<>(players);
         Collections.sort(randomPlayerList, new PlayerChanceCompare()); //trie par chance
@@ -142,16 +149,16 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 return questionsList.get(randomIndex);
             }
         }
-        return "Aucune question trouvée avec ces paramètres."; //if no question was found
+        return ""; //if no question was found
     }
 
     private String getFilledQuestion(String rawQuestion, List<Player> players)
     {
         String res = rawQuestion;
-        res = res.replace("{joueur1}", players.get(0).name);
-        res = res.replace("{joueur2}", players.get(1).name);
-        if(players.size() > 2) res = res.replace("{joueur3}", players.get(2).name);
-        if(players.size() > 3) res = res.replace("{joueur4}", players.get(3).name);
+        if (players.size() > 0) res = res.replace("{joueur1}", players.get(0).name);
+        if (players.size() > 1) res = res.replace("{joueur2}", players.get(1).name);
+        if (players.size() > 2) res = res.replace("{joueur3}", players.get(2).name);
+        if (players.size() > 3) res = res.replace("{joueur4}", players.get(3).name);
         res = res.replace("{glou}", String.valueOf((int)(1 + Math.random() * 4)));
         return res;
     }

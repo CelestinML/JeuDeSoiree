@@ -7,8 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.view.View;
 import android.view.WindowManager;
@@ -17,7 +15,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,11 +33,10 @@ public class SetupActivity extends AppCompatActivity {
 
     Button add;
     Button button_start;
-    AlertDialog dialogr;
     LinearLayout layout;
 
-    int maxPlayers = 5;
-    int minPlayers = 3;
+    int maxPlayers = 15;
+    int minPlayers = 2;
     int nbrPlayers = 0;
     ArrayList<Player> previousPlayers;
     ArrayList<Player> players = new ArrayList<>();
@@ -315,8 +311,7 @@ public class SetupActivity extends AppCompatActivity {
                         String playerNewName = namedialog.getText().toString();
                         if (PlayerAlreadyExist(playerNewName, playerOldName)) {
                             Toast.makeText(SetupActivity.this, "Ce nom est déjà pris par un autre joueur.", Toast.LENGTH_SHORT).show();
-                        }
-                        else {
+                        } else {
                             // Assignation des nouvelles valeurs à la view du joueur déjà existante
                             nameView.setText(playerNewName);
                             // Temporaire, permet de changer l'image si non buveur
