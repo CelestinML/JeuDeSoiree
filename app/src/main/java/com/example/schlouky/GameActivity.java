@@ -17,7 +17,6 @@ import java.util.ArrayList;
 public class GameActivity extends AppCompatActivity {
 
     final int questionNb = 20;
-    int playerNb = 3;
     private List<Question> questions = new ArrayList<>();
 
     int currentQuestionIndex = 0;
@@ -126,25 +125,43 @@ public class GameActivity extends AppCompatActivity {
         db.players = players;
         db.setupDatabase();
 
-        /*
-        db.addQuestion("{joueur1} doit mettre une grosse droite à {joueur2}.", 2, 0);
-        db.addQuestion("{joueur1} choisi la plus magnifique entre {joueur2} et {joueur3}. Le gagnant boit {glou} gorgées. Je rapelle que c'est a {joueur1} de choisir.", 3, 2);
-        db.addQuestion("{joueur1} ne doit pas oublier le petit bonhomme.", 1, 1);
-        db.addQuestion("Duel de regards entre {joueur1} et {joueur2}. Le perdant boit {glou} gorgées.", 2, 2);
-        db.addQuestion("Duel de regards entre {joueur1} et {joueur2}.", 2, 0);
-         */
+        //Questions à 3 joueurs
+        db.addQuestion("Moment confession\n\n" +
+                "{joueur3} dit qui est le plus gentil entre {joueur1} et {joueur2}.\n" +
+                "L'élu de son coeur prendra {glou} schlouks.", 3, 2);
 
-        db.addQuestion("Aucun joueur ne boit ({joueur1}, {joueur2}, {joueur3})", 3, 0);
-        db.addQuestion("{joueur1} boit mais pas {joueur2} et {joueur3}", 3, 1);
-        db.addQuestion("{joueur1} et {joueur2} boivent mais pas {joueur3}", 3, 2);
-        db.addQuestion("Tout le monde boit ({joueur1}, {joueur2}, {joueur3})", 3, 3);
-        db.addQuestion("Tout le monde boit ({joueur1}, {joueur2})", 2, 2);
-        db.addQuestion("{joueur1} boit mais pas {joueur2}", 2, 1);
-        db.addQuestion("Personne ne boit ({joueur1}, {joueur2})", 2, 0);
+        //Questions à 2 joueurs
+        db.addQuestion("Concours de pompes entre {joueur1} et {joueur2}.\n" +
+                "Le perdant prend 3 schlouks.", 2, 2);
 
-        for(int i = 0; i < players.size(); i++)
-        {
-            players.get(i).chance = (int)(Math.random() * 10);
+        //Questions à 1 joueur
+        db.addQuestion("{joueur1} fait un compliment sincère à tous les autres joueurs.", 1, 0);
+
+        //Questions à 0 joueurs
+        db.addQuestion("Jeu à thème !\n\n" +
+                "Les alcools français.\n" +
+                "Le premier joueur qui n'a plus d'idées, ou qui est trop lent prend {glou} schlouks.", 0, 0);
+        db.addQuestion("Jeu à thème !\n\n" +
+                "Les films français.\n" +
+                "Le premier joueur qui n'a plus d'idées, ou qui est trop lent prend {glou} schlouks.", 0, 0);
+        db.addQuestion("Jeu à thème !\n\n" +
+                "Les humoristes français.\n" +
+                "Le premier joueur qui n'a plus d'idées, ou qui est trop lent prend {glou} schlouks.", 0, 0);
+        db.addQuestion("Jeu à thème !\n\n" +
+                "Les chanteurs français.\n" +
+                "Le premier joueur qui n'a plus d'idées, ou qui est trop lent prend {glou} schlouks.", 0, 0);
+        db.addQuestion("Jeu à thème !\n\n" +
+                "Les chanteurs des années 2000.\n" +
+                "Le premier joueur qui n'a plus d'idées, ou qui est trop lent prend {glou} schlouks.", 0, 0);
+        db.addQuestion("Jeu à thème !\n\n" +
+                "Les séries dont la fin est naze.\n" +
+                "Le premier joueur qui n'a plus d'idées, ou qui est trop lent prend {glou} schlouks.", 0, 0);
+        db.addQuestion("Jeu à thème !\n\n" +
+                "Les séries surcotées.\n" +
+                "Le premier joueur qui n'a plus d'idées, ou qui est trop lent prend {glou} schlouks.", 0, 0);
+
+        for (int i = 0; i < players.size(); i++) {
+            players.get(i).chance = (int) (Math.random() * 10);
         }
 
         for (int i = 0; i < questionNb; i++) {
@@ -153,7 +170,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private int Random(int inclMin, int inclMax) {
-        return inclMin + (int)(Math.random() * ((inclMax - inclMin) + 1));
+        return inclMin + (int) (Math.random() * ((inclMax - inclMin) + 1));
     }
 
     @Override
