@@ -14,8 +14,8 @@
             android:id="@+id/nameEdit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Name"
-            android:textSize="20dp"/>
+            android:hint="Nom"
+            android:textSize="20dp" />
 
         <Switch
             android:id="@+id/buveur"

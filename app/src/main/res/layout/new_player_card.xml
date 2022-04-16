@@ -39,13 +39,14 @@
                     android:id="@+id/name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Name"
                     android:layout_marginLeft="130dp"
-                    android:layout_marginRight="30dp"
                     android:layout_marginTop="5dp"
+                    android:layout_marginRight="30dp"
+                    android:fontFamily="@font/baloo"
+                    android:text="Nom"
                     android:textColor="@color/white"
                     android:textFontWeight="1000"
-                    android:textSize="25dp"/>
+                    android:textSize="25dp" />
 
                 <ImageButton
                     android:id="@+id/delete"

@@ -5,6 +5,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcel;
@@ -25,12 +28,14 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class SetupActivity extends AppCompatActivity {
 
@@ -52,12 +57,17 @@ public class SetupActivity extends AppCompatActivity {
 
     ArrayList<View> playerCards = new ArrayList<>();
 
+    int[] backgrounds = new int[]{R.drawable.background1, R.drawable.background2, R.drawable.background3};
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_setup);
+
+        RelativeLayout relativeLayout = findViewById(R.id.activity_setup);
+        relativeLayout.setBackground(getDrawable(backgrounds[new Random().nextInt(backgrounds.length)]));
 
         if (getIntent().hasExtra("Players")) {
             previousPlayers = getIntent().getParcelableArrayListExtra("Players");
@@ -99,6 +109,10 @@ public class SetupActivity extends AppCompatActivity {
 
     }
 
+    private void getRandomBackground(){
+
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -121,7 +135,7 @@ public class SetupActivity extends AppCompatActivity {
 
         final AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(view)
-                .setTitle("Enter name")
+                .setTitle("Entrez le nom")
                 .setPositiveButton(android.R.string.ok, null) //Set to null. We override the onclick
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
@@ -295,7 +309,7 @@ public class SetupActivity extends AppCompatActivity {
 
         final AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(viewdialog)
-                .setTitle("Enter name")
+                .setTitle("Entrez le nom")
                 .setPositiveButton(android.R.string.ok, null) //Set to null. We override the onclick
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();

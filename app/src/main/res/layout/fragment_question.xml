@@ -14,6 +14,7 @@
         android:id="@+id/question"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/baloo"
         android:gravity="center_horizontal|center_vertical"
         android:text="TextView"
         android:textColor="@color/white"

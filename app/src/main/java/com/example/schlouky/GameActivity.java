@@ -7,9 +7,11 @@ import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import java.util.ArrayList;
@@ -28,6 +30,8 @@ public class GameActivity extends AppCompatActivity {
     ArrayList<Player> players = new ArrayList<Player>();
     ArrayList<String> dede;
 
+    int[] backgrounds = new int[]{R.drawable.background1, R.drawable.background2, R.drawable.background3};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -35,7 +39,10 @@ public class GameActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_game);
 
-        // Récupération de la liste des joueurs depuis SetupActivity
+        RelativeLayout relativeLayout = findViewById(R.id.activity_game);
+        relativeLayout.setBackground(getDrawable(backgrounds[new Random().nextInt(backgrounds.length)]));
+
+        // Récupération de la liste des joueurs depuis SetupActivity"
         players = getIntent().getParcelableArrayListExtra("Players");
 
         LoadQuestions();
