@@ -12,33 +12,36 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Ajoutez les participants"
-        android:layout_marginTop="15dp"
-        android:layout_centerHorizontal="true"
         android:layout_alignParentTop="true"
-        android:textColor="@color/white"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="15dp"
         android:background="@color/black"
+        android:fontFamily="@font/baloo"
+        android:text="Ajoutez les participants"
+        android:textColor="@color/white"
         android:textSize="30dp" />
 
     <Button
         android:id="@+id/add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add"
-        android:backgroundTint="#CCCCCCCC"
-        android:layout_marginBottom="60dp"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"/>
+        android:layout_marginBottom="60dp"
+        android:backgroundTint="#CCCCCCCC"
+        android:fontFamily="@font/baloo"
+        android:text="Ajouter" />
 
     <Button
         android:id="@+id/startGame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="COMMENCER LA PARTIE"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
         android:layout_marginBottom="10dp"
         android:backgroundTint="#CCCCCCCC"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"/>
+        android:fontFamily="@font/baloo"
+        android:text="COMMENCER LA PARTIE" />
 
     <ScrollView
         android:layout_width="match_parent"

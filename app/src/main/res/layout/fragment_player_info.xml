@@ -10,6 +10,7 @@
         android:id="@+id/textView3"
         android:layout_width="197dp"
         android:layout_height="732dp"
+        android:fontFamily="@font/baloo"
         android:gravity="center"
         android:text="TextView"
         android:textColor="@color/white"

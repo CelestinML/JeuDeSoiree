@@ -121,7 +121,7 @@ public class SetupActivity extends AppCompatActivity {
 
         final AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(view)
-                .setTitle("Enter name")
+                .setTitle("Entrez le nom")
                 .setPositiveButton(android.R.string.ok, null) //Set to null. We override the onclick
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
@@ -295,7 +295,7 @@ public class SetupActivity extends AppCompatActivity {
 
         final AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(viewdialog)
-                .setTitle("Enter name")
+                .setTitle("Entrez le nom")
                 .setPositiveButton(android.R.string.ok, null) //Set to null. We override the onclick
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
