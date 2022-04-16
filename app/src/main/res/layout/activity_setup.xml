@@ -16,7 +16,6 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="15dp"
-        android:background="@color/black"
         android:fontFamily="@font/baloo"
         android:text="Ajoutez les participants"
         android:textColor="@color/white"
