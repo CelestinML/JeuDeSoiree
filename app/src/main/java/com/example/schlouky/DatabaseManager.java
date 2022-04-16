@@ -30,6 +30,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     //Players data
     public List<Player> players;
+    private List<Player> playersFromCurrentQuestion;
 
     public DatabaseManager(Context context, ArrayList<Player> players) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -77,9 +78,51 @@ public class DatabaseManager extends SQLiteOpenHelper {
         database.insert(TABLE_NAME, null, values);
     }
 
-    public String getQuestion(int playerCount, int drinkingPlayerCount) {
+    public Question getRandomQuestion() {
+        List<Player> randomPlayerList = getRandomPlayers();
+
+        int playerCount = randomPlayerList.size();
+        int drinkingPlayerCount = 0;
+        for(int i = 0; i < playerCount; i++)
+        {
+            if(randomPlayerList.get(i).buveur)
+            {
+                drinkingPlayerCount++;
+            }
+        }
+
+        String rawQuestion = getRawQuestion(playerCount, drinkingPlayerCount);
+        String filledQuestion = getFilledQuestion(rawQuestion, randomPlayerList);
+
+        //mise a jour des chances des joueurs
+        for(int i = 0; i < players.size(); i++)
+        {
+            Player p = players.get(i);
+            if(randomPlayerList.contains(p)) { //si le joueur a été choisi a cette question
+                p.chance = 0;
+            }
+            p.chance += (int)(Math.random() * 3);
+        }
+
+        Question res = new Question(filledQuestion, randomPlayerList);
+        return res;
+    }
+
+    private List<Player> getRandomPlayers()
+    {
+        int playerCount = 2 + (int)Math.round(Math.random());
+
+        List<Player> randomPlayerList = new ArrayList<>(players);
+        Collections.sort(randomPlayerList, new PlayerChanceCompare()); //trie par chance
+        randomPlayerList = randomPlayerList.subList(0, playerCount); //garde les plus chanceux
+        Collections.sort(randomPlayerList, new PlayerDrinkingCompare()); //met les buveurs en début de liste
+
+        return randomPlayerList;
+    }
+
+    private String getRawQuestion(int playerCount, int drinkingPlayerCount) {
         SQLiteDatabase database = this.getReadableDatabase();
-        String request = String.format("SELECT %s, %s FROM %s WHERE %s >= %d AND %s <= %d;",
+        String request = String.format("SELECT %s, %s FROM %s WHERE %s = %d AND %s <= %d;",
                 ID_FIELD, QUESTION_FIELD, TABLE_NAME, PLAYER_COUNT_FIELD, playerCount, DRINKING_PLAYER_COUNT_FIELD, drinkingPlayerCount);
 
         try (Cursor result = database.rawQuery(request, null)) {
@@ -94,23 +137,19 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
                 //selects a random question
                 int randomIndex = (int)(Math.random() * questionsCount);
-                String rawQuestion = questionsList.get(randomIndex);
-                String filledQuestion = getFilledQuestion(rawQuestion);
-                return filledQuestion;
+                return questionsList.get(randomIndex);
             }
         }
         return "Aucune question trouvée avec ces paramètres."; //if no question was found
     }
 
-    private String getFilledQuestion(String rawQuestion)
+    private String getFilledQuestion(String rawQuestion, List<Player> players)
     {
-        List<Player> randomPlayerList = new ArrayList<>(players);
-        Collections.shuffle(randomPlayerList);
-
         String res = rawQuestion;
-        res = res.replace("{joueur1}", randomPlayerList.get(0).name);
-        res = res.replace("{joueur2}", randomPlayerList.get(1).name);
-        res = res.replace("{joueur3}", randomPlayerList.get(2).name);
+        res = res.replace("{joueur1}", players.get(0).name);
+        res = res.replace("{joueur2}", players.get(1).name);
+        if(players.size() > 2) res = res.replace("{joueur3}", players.get(2).name);
+        if(players.size() > 3) res = res.replace("{joueur4}", players.get(3).name);
         res = res.replace("{glou}", String.valueOf((int)(1 + Math.random() * 4)));
         return res;
     }
@@ -119,8 +158,23 @@ public class DatabaseManager extends SQLiteOpenHelper {
         players.add(player);
     }
 
+    public List<Player> getPlayersInCurrentQuestion() {
+        return playersFromCurrentQuestion;
+    }
+
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
 
+    }
+}
+
+class Question {
+    public String text;
+    public List<Player> players;
+
+    public Question(String text, List<Player> players)
+    {
+        this.text = text;
+        this.players = players;
     }
 }

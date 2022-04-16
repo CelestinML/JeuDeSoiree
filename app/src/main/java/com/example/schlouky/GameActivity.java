@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ public class GameActivity extends AppCompatActivity {
 
     final int questionNb = 20;
     int playerNb = 3;
-    private ArrayList<String> questions = new ArrayList<>();
+    private List<Question> questions = new ArrayList<>();
 
     int currentQuestionIndex = 0;
 
@@ -45,7 +46,7 @@ public class GameActivity extends AppCompatActivity {
         LoadQuestions();
 
         Bundle bundle = new Bundle();
-        bundle.putString("question", questions.get(currentQuestionIndex));
+        bundle.putString("question", questions.get(currentQuestionIndex).text);
 
         getSupportFragmentManager().beginTransaction()
                 .setReorderingAllowed(true)
@@ -81,7 +82,7 @@ public class GameActivity extends AppCompatActivity {
                                                 .commit();
                                     } else if (currentQuestionIndex < questionNb) {
                                         Bundle bundle = new Bundle();
-                                        bundle.putString("question", questions.get(currentQuestionIndex));
+                                        bundle.putString("question", questions.get(currentQuestionIndex).text);
 
 
                                         getSupportFragmentManager().beginTransaction()
@@ -97,7 +98,7 @@ public class GameActivity extends AppCompatActivity {
                                     currentQuestionIndex--;
                                     if (currentQuestionIndex >= 0) {
                                         Bundle bundle = new Bundle();
-                                        bundle.putString("question", questions.get(currentQuestionIndex));
+                                        bundle.putString("question", questions.get(currentQuestionIndex).text);
 
                                         getSupportFragmentManager().beginTransaction()
                                                 .setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left)
@@ -129,26 +130,29 @@ public class GameActivity extends AppCompatActivity {
         DatabaseManager db = DatabaseManager.getInstance(this, players);
         db.setupDatabase();
 
-        /*db.addPlayer("Stéphane", true);
-        db.addPlayer("Robin", false);
-        db.addPlayer("Célestin", true);
-        db.addPlayer("Eva", true);
-        db.addPlayer("Mathieu", true);*/
-
+        /*
         db.addQuestion("{joueur1} doit mettre une grosse droite à {joueur2}.", 2, 0);
         db.addQuestion("{joueur1} choisi la plus magnifique entre {joueur2} et {joueur3}. Le gagnant boit {glou} gorgées. Je rapelle que c'est a {joueur1} de choisir.", 3, 2);
         db.addQuestion("{joueur1} ne doit pas oublier le petit bonhomme.", 1, 1);
         db.addQuestion("Duel de regards entre {joueur1} et {joueur2}. Le perdant boit {glou} gorgées.", 2, 2);
         db.addQuestion("Duel de regards entre {joueur1} et {joueur2}.", 2, 0);
+         */
+
+        db.addQuestion("Aucun joueur ne boit ({joueur1}, {joueur2}, {joueur3})", 3, 0);
+        db.addQuestion("{joueur1} boit mais pas {joueur2} et {joueur3}", 3, 1);
+        db.addQuestion("{joueur1} et {joueur2} boivent mais pas {joueur3}", 3, 2);
+        db.addQuestion("Tout le monde boit ({joueur1}, {joueur2}, {joueur3})", 3, 3);
+        db.addQuestion("Tout le monde boit ({joueur1}, {joueur2})", 2, 2);
+        db.addQuestion("{joueur1} boit mais pas {joueur2}", 2, 1);
+        db.addQuestion("Personne ne boit ({joueur1}, {joueur2})", 2, 0);
+
+        for(int i = 0; i < players.size(); i++)
+        {
+            players.get(i).chance = (int)(Math.random() * 10);
+        }
 
         for (int i = 0; i < questionNb; i++) {
-            String currentQuestion = db.getQuestion(Random(1, playerNb), 3);
-            if (currentQuestion != "Aucune question trouvée avec ces paramètres.") {
-                questions.add(currentQuestion);
-            }
-            else {
-                i--;
-            }
+            questions.add(db.getRandomQuestion());
         }
     }
 
