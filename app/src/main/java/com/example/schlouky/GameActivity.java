@@ -7,9 +7,11 @@ import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import java.util.ArrayList;
@@ -28,12 +30,17 @@ public class GameActivity extends AppCompatActivity {
     ArrayList<Player> players = new ArrayList<Player>();
     ArrayList<String> dede;
 
+    int[] backgrounds = new int[]{R.drawable.background1, R.drawable.background2, R.drawable.background3};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_game);
+
+        RelativeLayout relativeLayout = findViewById(R.id.activity_game);
+        relativeLayout.setBackground(getDrawable(backgrounds[new Random().nextInt(backgrounds.length)]));
 
         // Récupération de la liste des joueurs depuis SetupActivity"
         players = getIntent().getParcelableArrayListExtra("Players");
@@ -78,7 +85,7 @@ public class GameActivity extends AppCompatActivity {
                                         getSupportFragmentManager().beginTransaction()
                                                 .setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
                                                 .setReorderingAllowed(true)
-                                                .add(R.id.question_location, EndGameFragment.class, null)
+                                                .replace(R.id.question_location, EndGameFragment.class, null)
                                                 .commit();
                                     } else if (currentQuestionIndex < questionNb) {
                                         Bundle bundle = new Bundle();
@@ -88,7 +95,7 @@ public class GameActivity extends AppCompatActivity {
                                         getSupportFragmentManager().beginTransaction()
                                                 .setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
                                                 .setReorderingAllowed(true)
-                                                .add(R.id.question_location, QuestionFragment.class, bundle)
+                                                .replace(R.id.question_location, QuestionFragment.class, bundle)
                                                 .commit();
                                     } else {
                                         currentQuestionIndex = questionNb;
@@ -103,7 +110,7 @@ public class GameActivity extends AppCompatActivity {
                                         getSupportFragmentManager().beginTransaction()
                                                 .setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left)
                                                 .setReorderingAllowed(true)
-                                                .add(R.id.question_location, QuestionFragment.class, bundle)
+                                                .replace(R.id.question_location, QuestionFragment.class, bundle)
                                                 .commit();
                                     } else {
                                         currentQuestionIndex = 0;
