@@ -35,18 +35,13 @@ public class GameActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_game);
 
-        // Récupération de la liste des joueurs depuis SetupActivity"
+        // Récupération de la liste des joueurs depuis SetupActivity
         players = getIntent().getParcelableArrayListExtra("Players");
-        /*for (Player p:players)
-        {
-            String str = "[" + p.name + "]" + "{" + p.buveur + "}";
-            Toast.makeText(GameActivity.this, str, Toast.LENGTH_SHORT).show();
-        }*/
 
         LoadQuestions();
 
         Bundle bundle = new Bundle();
-        bundle.putString("question", questions.get(currentQuestionIndex).text);
+        bundle.putParcelable("question", questions.get(currentQuestionIndex));
 
         getSupportFragmentManager().beginTransaction()
                 .setReorderingAllowed(true)
@@ -82,8 +77,7 @@ public class GameActivity extends AppCompatActivity {
                                                 .commit();
                                     } else if (currentQuestionIndex < questionNb) {
                                         Bundle bundle = new Bundle();
-                                        bundle.putString("question", questions.get(currentQuestionIndex).text);
-
+                                        bundle.putParcelable("question", questions.get(currentQuestionIndex));
 
                                         getSupportFragmentManager().beginTransaction()
                                                 .setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
@@ -98,7 +92,7 @@ public class GameActivity extends AppCompatActivity {
                                     currentQuestionIndex--;
                                     if (currentQuestionIndex >= 0) {
                                         Bundle bundle = new Bundle();
-                                        bundle.putString("question", questions.get(currentQuestionIndex).text);
+                                        bundle.putParcelable("question", questions.get(currentQuestionIndex));
 
                                         getSupportFragmentManager().beginTransaction()
                                                 .setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left)
@@ -124,10 +118,12 @@ public class GameActivity extends AppCompatActivity {
         Intent intent = new Intent(this, SetupActivity.class);
         intent.putParcelableArrayListExtra("Players", players);
         startActivity(intent);
+        finish();
     }
 
     private void LoadQuestions() {
-        DatabaseManager db = DatabaseManager.getInstance(this, players);
+        DatabaseManager db = DatabaseManager.getInstance(this);
+        db.players = players;
         db.setupDatabase();
 
         /*

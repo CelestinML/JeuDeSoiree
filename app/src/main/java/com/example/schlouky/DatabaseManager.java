@@ -5,6 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Pair;
 
 import androidx.annotation.Nullable;
@@ -32,16 +34,16 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public List<Player> players;
     private List<Player> playersFromCurrentQuestion;
 
-    public DatabaseManager(Context context, ArrayList<Player> players) {
+    public DatabaseManager(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.getWritableDatabase();
-        this.players = players;
+        this.players = new ArrayList<>();
     }
 
     //singleton
-    public static DatabaseManager getInstance(Context context, ArrayList<Player> players) {
+    public static DatabaseManager getInstance(Context context) {
         if (instance == null) {
-            instance = new DatabaseManager(context, players);
+            instance = new DatabaseManager(context);
         }
 
         return instance;
@@ -168,7 +170,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 }
 
-class Question {
+class Question implements Parcelable {
     public String text;
     public List<Player> players;
 
@@ -176,5 +178,33 @@ class Question {
     {
         this.text = text;
         this.players = players;
+    }
+
+    protected Question(Parcel in) {
+        text = in.readString();
+        players = in.readArrayList(Player.class.getClassLoader());
+    }
+
+    public static final Creator<Question> CREATOR = new Creator<Question>() {
+        @Override
+        public Question createFromParcel(Parcel in) {
+            return new Question(in);
+        }
+
+        @Override
+        public Question[] newArray(int size) {
+            return new Question[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(text);
+        parcel.writeList(players);
     }
 }

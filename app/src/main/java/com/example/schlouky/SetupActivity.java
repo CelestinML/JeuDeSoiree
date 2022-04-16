@@ -168,7 +168,7 @@ public class SetupActivity extends AppCompatActivity {
 
         ImageView photoView = view.findViewById(R.id.imageView);
 
-        if (photoPath != "") {
+        if (!photoPath.equals("")) {
             Bitmap loadedPhoto = loadPhoto(photoPath);
 
             if (loadedPhoto != null) {
