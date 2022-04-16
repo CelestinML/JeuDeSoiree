@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -47,6 +48,7 @@ public class QuestionFragment extends Fragment {
             }
         }
         if (photosNb == 0) {
+            ((ViewManager) view).removeView(photoLayout);
             return;
         }
         for (Player player : question.players) {

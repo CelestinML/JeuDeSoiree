@@ -15,17 +15,17 @@
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_alignParentRight="true"
-        app:srcCompat="@android:drawable/ic_menu_close_clear_cancel"
-        android:onClick="StartSetupActivity" />
+        android:onClick="StartSetupActivity"
+        app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
 
     <FrameLayout
         android:id="@+id/question_location"
-        android:layout_marginRight="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginBottom="20dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="100dp" />
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="70dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="40dp" />
 
 
 </RelativeLayout>

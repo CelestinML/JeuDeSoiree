@@ -73,7 +73,7 @@ public class GameActivity extends AppCompatActivity {
                                         getSupportFragmentManager().beginTransaction()
                                                 .setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
                                                 .setReorderingAllowed(true)
-                                                .add(R.id.question_location, EndGameFragment.class, null)
+                                                .replace(R.id.question_location, EndGameFragment.class, null)
                                                 .commit();
                                     } else if (currentQuestionIndex < questionNb) {
                                         Bundle bundle = new Bundle();
@@ -82,7 +82,7 @@ public class GameActivity extends AppCompatActivity {
                                         getSupportFragmentManager().beginTransaction()
                                                 .setCustomAnimations(R.anim.slide_in, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out)
                                                 .setReorderingAllowed(true)
-                                                .add(R.id.question_location, QuestionFragment.class, bundle)
+                                                .replace(R.id.question_location, QuestionFragment.class, bundle)
                                                 .commit();
                                     } else {
                                         currentQuestionIndex = questionNb;
@@ -97,7 +97,7 @@ public class GameActivity extends AppCompatActivity {
                                         getSupportFragmentManager().beginTransaction()
                                                 .setCustomAnimations(R.anim.slide_in_left, R.anim.fade_out, R.anim.fade_in, R.anim.slide_out_left)
                                                 .setReorderingAllowed(true)
-                                                .add(R.id.question_location, QuestionFragment.class, bundle)
+                                                .replace(R.id.question_location, QuestionFragment.class, bundle)
                                                 .commit();
                                     } else {
                                         currentQuestionIndex = 0;

@@ -4,16 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_centerInParent="true"
+    android:layout_centerInParent="false"
     android:layout_centerHorizontal="false"
     android:layout_centerVertical="false"
+    android:layout_gravity="center"
     android:background="@color/black">
 
     <TextView
         android:id="@+id/question"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
+        android:gravity="center_horizontal|center_vertical"
         android:text="TextView"
         android:textColor="@color/white"
         android:textSize="25sp"
@@ -28,13 +29,12 @@
         android:layout_width="wrap_content"
         android:layout_height="200sp"
         android:layout_marginBottom="20dp"
-        android:gravity="center_horizontal"
+        android:divider="@drawable/divider"
         android:orientation="horizontal"
+        android:showDividers="middle"
         app:layout_constraintBottom_toTopOf="@+id/question"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:showDividers="middle"
-        android:divider="@drawable/divider"></LinearLayout>
+        app:layout_constraintTop_toTopOf="parent"></LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
