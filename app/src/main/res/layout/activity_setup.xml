@@ -23,23 +23,27 @@
 
     <Button
         android:id="@+id/add"
+        style="?attr/materialButtonOutlinedStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="60dp"
-        android:backgroundTint="#CCCCCCCC"
         android:fontFamily="@font/baloo"
-        android:text="Ajouter" />
+        android:text="Ajouter"
+        android:textColor="@color/white"
+        app:strokeColor="@color/white" />
 
     <Button
         android:id="@+id/startGame"
+        style="?attr/materialButtonOutlinedStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="10dp"
-        android:backgroundTint="#CCCCCCCC"
+        android:textColor="@color/white"
+        app:strokeColor="@color/white"
         android:fontFamily="@font/baloo"
         android:text="COMMENCER LA PARTIE" />
 
