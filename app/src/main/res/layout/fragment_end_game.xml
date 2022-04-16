@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/black">
+    android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="0dp"
@@ -42,12 +41,13 @@
 
     <Button
         android:id="@+id/replay"
+        style="?attr/materialButtonOutlinedStyle"
         android:layout_width="232dp"
         android:layout_height="68dp"
         android:layout_marginBottom="50dp"
-        android:backgroundTint="@color/white"
+        android:textColor="@color/white"
+        app:strokeColor="@color/white"
         android:text="Rejouer"
-        android:textColor="@color/black"
         android:textSize="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
