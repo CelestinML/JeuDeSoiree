@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
@@ -152,7 +153,7 @@ public class SetupActivity extends AppCompatActivity {
                             Toast.makeText(SetupActivity.this, "Ce nom est déjà pris par un autre joueur.", Toast.LENGTH_SHORT).show();
                         } else {
                             // Ajout d'un nouveau joueur si appuit sur ok
-                            AddCard(name.getText().toString(), buveur.isChecked(), null);
+                            AddCard(name.getText().toString(), buveur.isChecked(), null, null);
 
                             // Si buveur a été décoché, on le coche par défaut pour la personne suivante
                             if (buveur.isChecked() == false) buveur.toggle();
@@ -166,12 +167,12 @@ public class SetupActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void AddCard(String name, boolean buveur, Uri photoUri) {
+    private void AddCard(String name, boolean buveur, Uri photoUri, String photoPath) {
         // Il y a un joueur de plus
         nbrPlayers++;
 
         // Ajout du joueur et de ses informations dans la base de données
-        Player newPlayer = new Player(name, buveur, photoUri);
+        Player newPlayer = new Player(name, buveur, photoUri, photoPath);
         players.add(newPlayer);
 
         // Récupération du layout new_player_card et de ses éléments
@@ -242,7 +243,7 @@ public class SetupActivity extends AppCompatActivity {
     }
 
     private void AddCard(Player player) {
-        AddCard(player.name, player.buveur, player.photoUri);
+        AddCard(player.name, player.buveur, player.photoUri, player.photoPath);
     }
 
     public void StartGameActivity(View view) {
@@ -372,16 +373,13 @@ public class SetupActivity extends AppCompatActivity {
         targetImageView = imgView;
         targetPlayerName = playerName;
         if (ContextCompat.checkSelfPermission(
-                SetupActivity.this, Manifest.permission.CAMERA) ==
-                PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(
                 SetupActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
                 PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(
                 SetupActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) ==
                 PackageManager.PERMISSION_GRANTED) {
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            File dir= new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() + "/Schlouky");
+            File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() + "/Schlouky");
             if (!dir.exists()) {
                 dir.mkdirs();
             }
@@ -390,14 +388,14 @@ public class SetupActivity extends AppCompatActivity {
             if (getApplicationContext().getApplicationInfo().targetSdkVersion >= 24) {
                 uri = FileProvider.getUriForFile(getApplicationContext(), getApplicationContext().getPackageName() + ".provider", output);
                 takePictureIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            }
-            else {
+            } else {
                 uri = Uri.fromFile(output);
             }
 
             for (int i = 0; i < players.size(); i++) {
                 if (players.get(i).name == targetPlayerName) {
                     players.get(i).photoUri = uri;
+                    players.get(i).photoPath = output.getAbsolutePath();
                 }
             }
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
@@ -407,7 +405,7 @@ public class SetupActivity extends AppCompatActivity {
                 // display error state to the user
             }
         } else {
-            requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_PERMISSIONS);
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_PERMISSIONS);
         }
     }
 
@@ -435,12 +433,42 @@ public class SetupActivity extends AppCompatActivity {
     private Bitmap loadPhoto(Uri uri) {
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
-            Matrix matrix = new Matrix();
-            matrix.postRotate(-90);
-            Bitmap bmp = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-            return bmp;
+            ExifInterface exif = null;
+            try {
+                File pictureFile = new File(output.getAbsolutePath());
+                exif = new ExifInterface(pictureFile.getAbsolutePath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            int orientation = ExifInterface.ORIENTATION_NORMAL;
+
+            if (exif != null)
+                orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    bitmap = rotateBitmap(bitmap, 90);
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    bitmap = rotateBitmap(bitmap, 180);
+                    break;
+
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    bitmap = rotateBitmap(bitmap, 270);
+                    break;
+            }
+
+            return bitmap;
+
         } catch (IOException e) {
             return null;
         }
+    }
+
+    public static Bitmap rotateBitmap(Bitmap bitmap, int degrees) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degrees);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 }

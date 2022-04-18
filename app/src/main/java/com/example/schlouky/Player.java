@@ -12,13 +12,15 @@ public class Player implements Parcelable
     public String name;
     public Boolean buveur;
     public Uri photoUri;
+    public String photoPath;
     public int chance; //chance d'apparaitre à la prochaine question.
 
-    Player(String name, Boolean buveur, Uri photoUri)
+    Player(String name, Boolean buveur, Uri photoUri, String photoPath)
     {
         this.name = name;
         this.buveur = buveur;
         this.photoUri = photoUri;
+        this.photoPath = photoPath;
     }
 
     protected Player(Parcel in) {
@@ -26,6 +28,7 @@ public class Player implements Parcelable
         byte tmpBuveur = in.readByte();
         buveur = tmpBuveur == 0 ? null : tmpBuveur == 1;
         photoUri = in.readParcelable(Uri.class.getClassLoader());
+        photoPath = in.readString();
     }
 
     public static final Creator<Player> CREATOR = new Creator<Player>() {
@@ -50,6 +53,7 @@ public class Player implements Parcelable
         parcel.writeString(name);
         parcel.writeByte((byte) (buveur == null ? 0 : buveur ? 1 : 2));
         parcel.writeParcelable(photoUri, i);
+        parcel.writeString(photoPath);
     }
 }
 
