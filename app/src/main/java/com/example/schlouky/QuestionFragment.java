@@ -3,7 +3,9 @@ package com.example.schlouky;
 import android.app.ActionBar;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import java.io.File;
+import java.io.IOException;
 
 public class QuestionFragment extends Fragment {
 
@@ -74,11 +77,8 @@ public class QuestionFragment extends Fragment {
     }
 
     private Bitmap loadPhoto(String path) {
-        File imgFile = new File(path);
-        if (imgFile.exists()) {
-            return BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-        } else {
-            return null;
-        }
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        Bitmap bitmap = BitmapFactory.decodeFile(path, bmOptions);
+        return bitmap;
     }
 }

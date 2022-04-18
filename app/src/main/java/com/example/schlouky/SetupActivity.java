@@ -1,13 +1,20 @@
 package com.example.schlouky;
 
+import android.Manifest;
 import android.content.ActivityNotFoundException;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -19,13 +26,17 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -42,6 +53,7 @@ public class SetupActivity extends AppCompatActivity {
     ArrayList<Player> players = new ArrayList<>();
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    static final int REQUEST_PERMISSIONS = 2;
 
     ImageView targetImageView;
     String targetPlayerName;
@@ -356,11 +368,35 @@ public class SetupActivity extends AppCompatActivity {
     private void dispatchTakePictureIntent(ImageView imgView, String playerName) {
         targetImageView = imgView;
         targetPlayerName = playerName;
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        try {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-        } catch (ActivityNotFoundException e) {
-            // display error state to the user
+        if (ContextCompat.checkSelfPermission(
+                SetupActivity.this, Manifest.permission.CAMERA) ==
+                PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(
+                SetupActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(
+                SetupActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) ==
+                PackageManager.PERMISSION_GRANTED) {
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            try {
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            } catch (ActivityNotFoundException e) {
+                // display error state to the user
+            }
+        } else {
+            requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_PERMISSIONS);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_PERMISSIONS) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                dispatchTakePictureIntent(targetImageView, targetPlayerName);
+            } else {
+                Toast.makeText(this, "Impossible d'utiliser la fonctionnalité \"Photo\" sans votre permission.", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -370,36 +406,56 @@ public class SetupActivity extends AppCompatActivity {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
-            String imagePath = getGalleryPath() + targetPlayerName + ".png";
-            try (FileOutputStream out = new FileOutputStream(imagePath)) {
-
-                imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
-                // PNG is a lossless format, the compression factor (100) is ignored
-
-                for (int i = 0; i < players.size(); i++) {
-                    if (players.get(i).name == targetPlayerName) {
-                        players.get(i).photoPath = imagePath;
-                    }
-                }
-
-                targetImageView.setImageBitmap(imageBitmap);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            saveImage(imageBitmap, targetPlayerName);
+            targetImageView.setImageBitmap(imageBitmap);
+            //for (int i = 0; i < players.size(); i++) {
+            //    if (players.get(i).name == targetPlayerName) {
+            //        players.get(i).photoPath = path;
+            //    }
+            //}
         }
     }
 
-    private static String getGalleryPath() {
-        return Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_DCIM + "/";
+    private void saveImage(Bitmap finalBitmap, String fileName) {
+
+        String root = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES).toString();
+        File myDir = new File(root + "/saved_images");
+        myDir.mkdirs();
+
+        String fname = fileName + ".png";
+        File file = new File(myDir, fname);
+        if (file.exists()) file.delete();
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            // sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+            //     Uri.parse("file://"+ Environment.getExternalStorageDirectory())));
+            out.flush();
+            out.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // Tell the media scanner about the new file so that it is
+        // immediately available to the user.
+        MediaScannerConnection.scanFile(this, new String[]{file.toString()}, null,
+                new MediaScannerConnection.OnScanCompletedListener() {
+                    public void onScanCompleted(String path, Uri uri) {
+                        Log.i("ExternalStorage", "Scanned " + path + ":");
+                        Log.i("ExternalStorage", "-> uri=" + uri);
+                        for (int i = 0; i < players.size(); i++) {
+                            if (players.get(i).name == targetPlayerName) {
+                                players.get(i).photoPath = path;
+                            }
+                        }
+                    }
+                });
     }
 
     private Bitmap loadPhoto(String path) {
-        File imgFile = new File(path);
-        if (imgFile.exists()) {
-            return BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-        } else {
-            return null;
-        }
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        Bitmap bitmap = BitmapFactory.decodeFile(path, bmOptions);
+        return bitmap;
     }
 }
