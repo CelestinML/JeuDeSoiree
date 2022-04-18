@@ -27,6 +27,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -195,7 +196,7 @@ public class SetupActivity extends AppCompatActivity {
         ImageView photoView = view.findViewById(R.id.imageView);
 
         if (photoUri != null) {
-            Bitmap loadedPhoto = loadPhoto(photoUri);
+            Bitmap loadedPhoto = loadPhoto(photoUri, photoPath);
 
             if (loadedPhoto != null) {
                 photoView.setImageBitmap(loadedPhoto);
@@ -439,17 +440,17 @@ public class SetupActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bitmap imageBitmap = loadPhoto(Uri.fromFile(output));
+            Bitmap imageBitmap = loadPhoto(Uri.fromFile(output), output.getPath());
             targetImageView.setImageBitmap(imageBitmap);
         }
     }
 
-    private Bitmap loadPhoto(Uri uri) {
+    private Bitmap loadPhoto(Uri uri, String path) {
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
             ExifInterface exif = null;
             try {
-                File pictureFile = new File(output.getAbsolutePath());
+                File pictureFile = new File(path);
                 exif = new ExifInterface(pictureFile.getAbsolutePath());
             } catch (IOException e) {
                 e.printStackTrace();
