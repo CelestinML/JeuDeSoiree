@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
@@ -31,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -57,6 +59,7 @@ public class SetupActivity extends AppCompatActivity {
 
     ImageView targetImageView;
     String targetPlayerName;
+    File output;
 
     ArrayList<View> playerCards = new ArrayList<>();
 
@@ -149,7 +152,7 @@ public class SetupActivity extends AppCompatActivity {
                             Toast.makeText(SetupActivity.this, "Ce nom est déjà pris par un autre joueur.", Toast.LENGTH_SHORT).show();
                         } else {
                             // Ajout d'un nouveau joueur si appuit sur ok
-                            AddCard(name.getText().toString(), buveur.isChecked(), "");
+                            AddCard(name.getText().toString(), buveur.isChecked(), null);
 
                             // Si buveur a été décoché, on le coche par défaut pour la personne suivante
                             if (buveur.isChecked() == false) buveur.toggle();
@@ -163,12 +166,12 @@ public class SetupActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void AddCard(String name, boolean buveur, String photoPath) {
+    private void AddCard(String name, boolean buveur, Uri photoUri) {
         // Il y a un joueur de plus
         nbrPlayers++;
 
         // Ajout du joueur et de ses informations dans la base de données
-        Player newPlayer = new Player(name, buveur, photoPath);
+        Player newPlayer = new Player(name, buveur, photoUri);
         players.add(newPlayer);
 
         // Récupération du layout new_player_card et de ses éléments
@@ -176,8 +179,8 @@ public class SetupActivity extends AppCompatActivity {
 
         ImageView photoView = view.findViewById(R.id.imageView);
 
-        if (!photoPath.equals("")) {
-            Bitmap loadedPhoto = loadPhoto(photoPath);
+        if (photoUri != null) {
+            Bitmap loadedPhoto = loadPhoto(photoUri);
 
             if (loadedPhoto != null) {
                 photoView.setImageBitmap(loadedPhoto);
@@ -239,7 +242,7 @@ public class SetupActivity extends AppCompatActivity {
     }
 
     private void AddCard(Player player) {
-        AddCard(player.name, player.buveur, player.photoPath);
+        AddCard(player.name, player.buveur, player.photoUri);
     }
 
     public void StartGameActivity(View view) {
@@ -378,6 +381,26 @@ public class SetupActivity extends AppCompatActivity {
                 SetupActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) ==
                 PackageManager.PERMISSION_GRANTED) {
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            File dir= new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() + "/Schlouky");
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            output = new File(dir, targetPlayerName + ".jpeg");
+            Uri uri;
+            if (getApplicationContext().getApplicationInfo().targetSdkVersion >= 24) {
+                uri = FileProvider.getUriForFile(getApplicationContext(), getApplicationContext().getPackageName() + ".provider", output);
+                takePictureIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            }
+            else {
+                uri = Uri.fromFile(output);
+            }
+
+            for (int i = 0; i < players.size(); i++) {
+                if (players.get(i).name == targetPlayerName) {
+                    players.get(i).photoUri = uri;
+                }
+            }
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
             try {
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             } catch (ActivityNotFoundException e) {
@@ -404,58 +427,20 @@ public class SetupActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            saveImage(imageBitmap, targetPlayerName);
+            Bitmap imageBitmap = loadPhoto(Uri.fromFile(output));
             targetImageView.setImageBitmap(imageBitmap);
-            //for (int i = 0; i < players.size(); i++) {
-            //    if (players.get(i).name == targetPlayerName) {
-            //        players.get(i).photoPath = path;
-            //    }
-            //}
         }
     }
 
-    private void saveImage(Bitmap finalBitmap, String fileName) {
-
-        String root = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES).toString();
-        File myDir = new File(root + "/saved_images");
-        myDir.mkdirs();
-
-        String fname = fileName + ".png";
-        File file = new File(myDir, fname);
-        if (file.exists()) file.delete();
+    private Bitmap loadPhoto(Uri uri) {
         try {
-            FileOutputStream out = new FileOutputStream(file);
-            finalBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-            // sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
-            //     Uri.parse("file://"+ Environment.getExternalStorageDirectory())));
-            out.flush();
-            out.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+            Matrix matrix = new Matrix();
+            matrix.postRotate(-90);
+            Bitmap bmp = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            return bmp;
+        } catch (IOException e) {
+            return null;
         }
-        // Tell the media scanner about the new file so that it is
-        // immediately available to the user.
-        MediaScannerConnection.scanFile(this, new String[]{file.toString()}, null,
-                new MediaScannerConnection.OnScanCompletedListener() {
-                    public void onScanCompleted(String path, Uri uri) {
-                        Log.i("ExternalStorage", "Scanned " + path + ":");
-                        Log.i("ExternalStorage", "-> uri=" + uri);
-                        for (int i = 0; i < players.size(); i++) {
-                            if (players.get(i).name == targetPlayerName) {
-                                players.get(i).photoPath = path;
-                            }
-                        }
-                    }
-                });
-    }
-
-    private Bitmap loadPhoto(String path) {
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        Bitmap bitmap = BitmapFactory.decodeFile(path, bmOptions);
-        return bitmap;
     }
 }

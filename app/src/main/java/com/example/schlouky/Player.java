@@ -1,5 +1,6 @@
 package com.example.schlouky;
 
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -10,21 +11,21 @@ public class Player implements Parcelable
 {
     public String name;
     public Boolean buveur;
-    public String photoPath;
+    public Uri photoUri;
     public int chance; //chance d'apparaitre à la prochaine question.
 
-    Player(String name, Boolean buveur, String photoPath)
+    Player(String name, Boolean buveur, Uri photoUri)
     {
         this.name = name;
         this.buveur = buveur;
-        this.photoPath = photoPath;
+        this.photoUri = photoUri;
     }
 
     protected Player(Parcel in) {
         name = in.readString();
         byte tmpBuveur = in.readByte();
         buveur = tmpBuveur == 0 ? null : tmpBuveur == 1;
-        photoPath = in.readString();
+        photoUri = in.readParcelable(Uri.class.getClassLoader());
     }
 
     public static final Creator<Player> CREATOR = new Creator<Player>() {
@@ -48,7 +49,7 @@ public class Player implements Parcelable
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(name);
         parcel.writeByte((byte) (buveur == null ? 0 : buveur ? 1 : 2));
-        parcel.writeString(photoPath);
+        parcel.writeParcelable(photoUri, i);
     }
 }
 

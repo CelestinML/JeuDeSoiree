@@ -3,6 +3,7 @@ package com.example.schlouky;
 import android.app.ActionBar;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -46,7 +47,7 @@ public class QuestionFragment extends Fragment {
         questionView.setText(question.text);
         int photosNb = 0;
         for (Player player : question.players) {
-            if (!player.photoPath.equals("")) {
+            if (player.photoUri != null) {
                 photosNb++;
             }
         }
@@ -55,9 +56,9 @@ public class QuestionFragment extends Fragment {
             return;
         }
         for (Player player : question.players) {
-            if (!player.photoPath.equals("")) {
+            if (player.photoUri != null) {
                 ImageView photoView = new ImageView(getContext());
-                Bitmap photo = loadPhoto(player.photoPath);
+                Bitmap photo = loadPhoto(player.photoUri);
 
                 photoView.setImageBitmap(photo);
                 photoView.setAdjustViewBounds(true);
@@ -76,9 +77,15 @@ public class QuestionFragment extends Fragment {
         }
     }
 
-    private Bitmap loadPhoto(String path) {
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        Bitmap bitmap = BitmapFactory.decodeFile(path, bmOptions);
-        return bitmap;
+    private Bitmap loadPhoto(Uri uri) {
+        try {
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContext().getContentResolver(), uri);
+            Matrix matrix = new Matrix();
+            matrix.postRotate(-90);
+            Bitmap bmp = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            return bmp;
+        } catch (IOException e) {
+            return null;
+        }
     }
 }
