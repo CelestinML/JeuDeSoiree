@@ -16,9 +16,9 @@
 
         <ImageView
             android:id="@+id/imageView1"
-            android:layout_width="200dp"
+            android:layout_width="300dp"
             android:layout_height="match_parent"
-            android:src="@drawable/logo_placeholder"
-            android:layout_centerInParent="true"/>
+            android:layout_centerInParent="true"
+            app:srcCompat="@mipmap/ic_launcher_foreground"/>
     </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -19,13 +19,13 @@
 
         <ImageView
             android:id="@+id/imageView4"
-            android:layout_width="135dp"
-            android:layout_height="135dp"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
             android:foregroundGravity="center_vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/logo_placeholder" />
+            app:srcCompat="@mipmap/ic_launcher_foreground" />
 
         <TextView
             android:id="@+id/textView2"
