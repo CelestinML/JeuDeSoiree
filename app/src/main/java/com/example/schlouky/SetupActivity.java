@@ -50,7 +50,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
 
 public class SetupActivity extends AppCompatActivity {
@@ -126,7 +128,7 @@ public class SetupActivity extends AppCompatActivity {
 
     }
 
-    private void getRandomBackground(){
+    private void getRandomBackground() {
 
     }
 
@@ -219,8 +221,7 @@ public class SetupActivity extends AppCompatActivity {
         // Temporaire, permet de changer l'image si non buveur
         if (buveur) {
             buveurView.setColorFilter(Color.argb(255, 255, 255, 255));
-        }
-        else {
+        } else {
             buveurView.setColorFilter(Color.argb(255, 100, 100, 100));
         }
         buveurView.setOnClickListener(new View.OnClickListener() {
@@ -229,8 +230,7 @@ public class SetupActivity extends AppCompatActivity {
                 if (newPlayer.buveur) {
                     newPlayer.buveur = false;
                     buveurView.setColorFilter(Color.argb(255, 100, 100, 100));
-                }
-                else {
+                } else {
                     newPlayer.buveur = true;
                     buveurView.setColorFilter(Color.argb(255, 255, 255, 255));
                 }
@@ -402,35 +402,31 @@ public class SetupActivity extends AppCompatActivity {
                 PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(
                 SetupActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) ==
+                PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(
+                SetupActivity.this, Manifest.permission.CAMERA) ==
                 PackageManager.PERMISSION_GRANTED) {
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() + "/Schlouky");
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-            output = new File(dir, targetPlayerName + ".jpeg");
-            Uri uri;
-            if (getApplicationContext().getApplicationInfo().targetSdkVersion >= 24) {
-                uri = FileProvider.getUriForFile(getApplicationContext(), getApplicationContext().getPackageName() + ".provider", output);
-                takePictureIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            } else {
-                uri = Uri.fromFile(output);
-            }
-
-            for (int i = 0; i < players.size(); i++) {
-                if (players.get(i).name == targetPlayerName) {
-                    players.get(i).photoUri = uri;
-                    players.get(i).photoPath = output.getAbsolutePath();
+            // Ensure that there's a camera activity to handle the intent
+            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                // Create the File where the photo should go
+                output = null;
+                try {
+                    output = createImageFile();
+                } catch (IOException ex) {
+                    // Error occurred while creating the File
+                }
+                // Continue only if the File was successfully created
+                if (output != null) {
+                    Uri photoURI = FileProvider.getUriForFile(this,
+                            "com.example.android.fileprovider",
+                            output);
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
                 }
             }
-            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-            try {
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-            } catch (ActivityNotFoundException e) {
-                // display error state to the user
-            }
         } else {
-            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_PERMISSIONS);
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, REQUEST_PERMISSIONS);
         }
     }
 
@@ -452,7 +448,31 @@ public class SetupActivity extends AppCompatActivity {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Bitmap imageBitmap = loadPhoto(Uri.fromFile(output), output.getPath());
             targetImageView.setImageBitmap(imageBitmap);
+            for (int i = 0; i < players.size(); i++) {
+                if (players.get(i).name == targetPlayerName) {
+                    players.get(i).photoPath = currentPhotoPath;
+                    players.get(i).photoUri = Uri.fromFile(output);
+                }
+            }
         }
+    }
+
+    String currentPhotoPath;
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
     }
 
     private Bitmap loadPhoto(Uri uri, String path) {
@@ -487,7 +507,9 @@ public class SetupActivity extends AppCompatActivity {
             return bitmap;
 
         } catch (IOException e) {
-            return null;
+            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+            Bitmap bitmap = BitmapFactory.decodeFile(path, bmOptions);
+            return bitmap;
         }
     }
 

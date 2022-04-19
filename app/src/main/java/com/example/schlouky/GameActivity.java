@@ -23,7 +23,7 @@ public class GameActivity extends AppCompatActivity {
 
     int currentQuestionIndex = 0;
 
-    float threshold = 300;
+    float threshold = 200;
     float x1, x2, y1, y2, dx, dy;
 
     ArrayList<Player> players = new ArrayList<Player>();
