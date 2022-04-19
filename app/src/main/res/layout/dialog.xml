@@ -17,15 +17,6 @@
             android:hint="Nom"
             android:textSize="20dp" />
 
-        <Switch
-            android:id="@+id/buveur"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:textSize="20dp"
-            android:layout_marginTop="50dp"
-            android:drawableStart="@drawable/logo_placeholder"
-            android:checked="true" />
-
     </RelativeLayout>
 
 </RelativeLayout>

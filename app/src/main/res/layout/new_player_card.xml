@@ -40,7 +40,8 @@
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:layout_marginLeft="60dp"
-                    app:srcCompat="@drawable/logo_placeholder" />
+                    app:srcCompat="@drawable/logo_placeholder"
+                    app:tint="#808080"/>
 
                 <TextView
                     android:id="@+id/name"

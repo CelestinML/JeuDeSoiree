@@ -1,13 +1,16 @@
 package com.example.schlouky;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.media.MediaScannerConnection;
@@ -22,6 +25,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -143,8 +147,6 @@ public class SetupActivity extends AppCompatActivity {
 
         // Champs de texte pour entrer le non du joueur
         EditText name = view.findViewById(R.id.nameEdit);
-        // Switch pour indiquer si le joueur est un buveur ou non
-        Switch buveur = view.findViewById(R.id.buveur);
 
         final AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(view)
@@ -153,25 +155,27 @@ public class SetupActivity extends AppCompatActivity {
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
 
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
 
             @Override
             public void onShow(DialogInterface dialogInterface) {
+
+                name.requestFocus();
+                name.setSelection(name.getText().length());
 
                 Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
                 button.setOnClickListener(new View.OnClickListener() {
 
                     @Override
                     public void onClick(View view) {
-                        // TODO Do something
                         if (PlayerAlreadyExist(name.getText().toString(), null)) {
                             Toast.makeText(SetupActivity.this, "Ce nom est déjà pris par un autre joueur.", Toast.LENGTH_SHORT).show();
                         } else {
                             // Ajout d'un nouveau joueur si appuit sur ok
-                            AddCard(name.getText().toString(), buveur.isChecked(), null, null);
+                            AddCard(name.getText().toString(), true, null, null);
 
-                            // Si buveur a été décoché, on le coche par défaut pour la personne suivante
-                            if (buveur.isChecked() == false) buveur.toggle();
                             //Dismiss once everything is OK.
                             dialog.dismiss();
                         }
@@ -213,9 +217,25 @@ public class SetupActivity extends AppCompatActivity {
         // L'icone buveur + assignation
         ImageView buveurView = view.findViewById(R.id.buveur);
         // Temporaire, permet de changer l'image si non buveur
-        if (buveur == false) {
-            buveurView.setVisibility(View.INVISIBLE);
+        if (buveur) {
+            buveurView.setColorFilter(Color.argb(255, 255, 255, 255));
         }
+        else {
+            buveurView.setColorFilter(Color.argb(255, 100, 100, 100));
+        }
+        buveurView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (newPlayer.buveur) {
+                    newPlayer.buveur = false;
+                    buveurView.setColorFilter(Color.argb(255, 100, 100, 100));
+                }
+                else {
+                    newPlayer.buveur = true;
+                    buveurView.setColorFilter(Color.argb(255, 255, 255, 255));
+                }
+            }
+        });
 
         // Le nom du joueur + assignation
         TextView nameView = view.findViewById(R.id.name);
@@ -246,7 +266,7 @@ public class SetupActivity extends AppCompatActivity {
         playerCards.add(view);
 
         // La possibilité de cliquer sur la carte pour modifier le joueur
-        view.setOnClickListener(new View.OnClickListener() {
+        nameView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View vieww) {
                 ModifyPlayer(view);
@@ -314,12 +334,6 @@ public class SetupActivity extends AppCompatActivity {
         EditText namedialog = viewdialog.findViewById(R.id.nameEdit);
         namedialog.setText(nameView.getText().toString());
 
-        // Switch pour indiquer si le joueur est un buveur ou non
-        Switch buveurdialog = viewdialog.findViewById(R.id.buveur);
-
-
-        if (buveurView.getVisibility() == View.INVISIBLE) buveurdialog.toggle();
-
         final AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(viewdialog)
                 .setTitle("Entrez le nom")
@@ -327,17 +341,21 @@ public class SetupActivity extends AppCompatActivity {
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
 
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
 
             @Override
             public void onShow(DialogInterface dialogInterface) {
+
+                namedialog.requestFocus();
+                namedialog.setSelection(namedialog.getText().length());
 
                 Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
                 button.setOnClickListener(new View.OnClickListener() {
 
                     @Override
                     public void onClick(View view) {
-                        // TODO Do something
                         String playerOldName = nameView.getText().toString();
                         String playerNewName = namedialog.getText().toString();
                         if (PlayerAlreadyExist(playerNewName, playerOldName)) {
@@ -345,16 +363,11 @@ public class SetupActivity extends AppCompatActivity {
                         } else {
                             // Assignation des nouvelles valeurs à la view du joueur déjà existante
                             nameView.setText(playerNewName);
-                            // Temporaire, permet de changer l'image si non buveur
-                            if (buveurdialog.isChecked() == false) {
-                                buveurView.setVisibility(View.INVISIBLE);
-                            } else buveurView.setVisibility(View.VISIBLE);
 
                             // Modification du joueur
                             for (int i = 0; i < players.size(); i++) {
                                 if (players.get(i).name == playerOldName) {
                                     players.get(i).name = playerNewName;
-                                    players.get(i).buveur = buveurdialog.isChecked();
                                     break;
                                 }
                             }
@@ -367,9 +380,6 @@ public class SetupActivity extends AppCompatActivity {
                                     dispatchTakePictureIntent(photoView, playerNewName);
                                 }
                             });
-
-                            // Si buveur a été décoché, on le coche par défaut pour la personne suivante
-                            if (buveurdialog.isChecked() == false) buveurdialog.toggle();
                             //Dismiss once everything is OK.
                             dialog.dismiss();
                         }
