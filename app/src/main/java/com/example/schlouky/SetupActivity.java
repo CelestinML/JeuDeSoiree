@@ -48,6 +48,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
@@ -407,23 +408,22 @@ public class SetupActivity extends AppCompatActivity {
                 SetupActivity.this, Manifest.permission.CAMERA) ==
                 PackageManager.PERMISSION_GRANTED) {
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            // Ensure that there's a camera activity to handle the intent
-            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                // Create the File where the photo should go
-                output = null;
-                try {
-                    output = createImageFile();
-                } catch (IOException ex) {
-                    // Error occurred while creating the File
-                }
-                // Continue only if the File was successfully created
-                if (output != null) {
-                    Uri photoURI = FileProvider.getUriForFile(this,
-                            "com.example.android.fileprovider",
-                            output);
-                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-                }
+            // Create the File where the photo should go
+            output = null;
+            try {
+                output = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+
+            }
+            // Continue only if the File was successfully created
+            if (output != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        "com.example.android.fileprovider",
+                        output);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                takePictureIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
         } else {
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, REQUEST_PERMISSIONS);
@@ -446,12 +446,15 @@ public class SetupActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bitmap imageBitmap = loadPhoto(Uri.fromFile(output), output.getPath());
+            Uri outputUri = Uri.fromFile(output);
+            sendBroadcast(new Intent(
+                    Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, outputUri));
+            Bitmap imageBitmap = loadPhoto(outputUri, output.getPath());
             targetImageView.setImageBitmap(imageBitmap);
             for (int i = 0; i < players.size(); i++) {
                 if (players.get(i).name == targetPlayerName) {
                     players.get(i).photoPath = currentPhotoPath;
-                    players.get(i).photoUri = Uri.fromFile(output);
+                    players.get(i).photoUri = outputUri;
                 }
             }
         }
@@ -462,17 +465,21 @@ public class SetupActivity extends AppCompatActivity {
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-
+        String imageFileName = timeStamp + "_" + targetPlayerName + ".jpg";
+        File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() + "/Schlouky/");
+        if (!storageDir.exists()) {
+            if (!storageDir.mkdirs()) {
+                throw new IOException("The folder could not be created");
+            }
+        }
+        File imageFile = new File(storageDir, imageFileName);
+        if (!imageFile.createNewFile()) {
+            throw new IOException("The file could not be created");
+        }
         // Save a file: path for use with ACTION_VIEW intents
-        currentPhotoPath = image.getAbsolutePath();
-        return image;
+        currentPhotoPath = imageFile.getAbsolutePath();
+        Toast.makeText(SetupActivity.this, currentPhotoPath, Toast.LENGTH_LONG).show();
+        return imageFile;
     }
 
     private Bitmap loadPhoto(Uri uri, String path) {
