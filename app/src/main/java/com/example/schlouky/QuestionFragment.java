@@ -1,8 +1,6 @@
 package com.example.schlouky;
 
-import android.app.ActionBar;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -58,25 +56,16 @@ public class QuestionFragment extends Fragment {
 
         if (photosToDisplay.size() == 0) {
             ((ViewManager) view).removeView(photoLayout);
-            return;
         }
+        else {
+            for (Bitmap photo : photosToDisplay) {
+                ImageView photoView = new ImageView(getContext());
 
-        for (Bitmap photo : photosToDisplay) {
-            ImageView photoView = new ImageView(getContext());
+                photoView.setImageBitmap(photo);
+                photoView.setAdjustViewBounds(true);
 
-            photoView.setImageBitmap(photo);
-            photoView.setAdjustViewBounds(true);
-
-            photoLayout.addView(photoView);
-
-            // Gets the layout params that will allow you to resize the layout
-            //ViewGroup.LayoutParams params = photoView.getLayoutParams();
-
-            // We use the whole layout's height
-            //params.height = ActionBar.LayoutParams.MATCH_PARENT;
-
-            //We update the dimensions
-            //photoView.setLayoutParams(params);
+                photoLayout.addView(photoView);
+            }
         }
     }
 
