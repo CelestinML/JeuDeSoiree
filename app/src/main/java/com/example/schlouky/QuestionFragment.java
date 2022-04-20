@@ -22,6 +22,7 @@ import androidx.fragment.app.Fragment;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class QuestionFragment extends Fragment {
 
@@ -34,8 +35,8 @@ public class QuestionFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater,
-                              ViewGroup container,
-                              Bundle savedInstanceState) {
+                             ViewGroup container,
+                             Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         return inflater.inflate(R.layout.fragment_question, container, false);
     }
@@ -46,35 +47,36 @@ public class QuestionFragment extends Fragment {
         question = requireArguments().getParcelable("question");
         TextView questionView = (TextView) view.findViewById(R.id.question);
         questionView.setText(question.text);
-        int photosNb = 0;
+
+        ArrayList<Bitmap> photosToDisplay = new ArrayList<>();
+
         for (Player player : question.players) {
             if (player.photoUri != null) {
-                photosNb++;
+                photosToDisplay.add(loadPhoto(player.photoUri, player.photoPath));
             }
         }
-        if (photosNb == 0) {
+
+        if (photosToDisplay.size() == 0) {
             ((ViewManager) view).removeView(photoLayout);
             return;
         }
-        for (Player player : question.players) {
-            if (player.photoUri != null) {
-                ImageView photoView = new ImageView(getContext());
-                Bitmap photo = loadPhoto(player.photoUri, player.photoPath);
 
-                photoView.setImageBitmap(photo);
-                photoView.setAdjustViewBounds(true);
+        for (Bitmap photo : photosToDisplay) {
+            ImageView photoView = new ImageView(getContext());
 
-                photoLayout.addView(photoView);
+            photoView.setImageBitmap(photo);
+            photoView.setAdjustViewBounds(true);
 
-                // Gets the layout params that will allow you to resize the layout
-                ViewGroup.LayoutParams params = photoView.getLayoutParams();
+            photoLayout.addView(photoView);
 
-                // We use the whole layout's height
-                params.height = ActionBar.LayoutParams.MATCH_PARENT;
+            // Gets the layout params that will allow you to resize the layout
+            //ViewGroup.LayoutParams params = photoView.getLayoutParams();
 
-                //We update the dimensions
-                photoView.setLayoutParams(params);
-            }
+            // We use the whole layout's height
+            //params.height = ActionBar.LayoutParams.MATCH_PARENT;
+
+            //We update the dimensions
+            //photoView.setLayoutParams(params);
         }
     }
 
