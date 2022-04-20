@@ -6,12 +6,14 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -63,6 +65,7 @@ public class QuestionFragment extends Fragment {
 
                 photoView.setImageBitmap(photo);
                 photoView.setAdjustViewBounds(true);
+                photoView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 
                 photoLayout.addView(photoView);
             }
