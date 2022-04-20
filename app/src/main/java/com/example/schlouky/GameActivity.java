@@ -54,7 +54,7 @@ public class GameActivity extends AppCompatActivity {
                 .add(R.id.question_location, QuestionFragment.class, bundle)
                 .commit();
 
-        findViewById(R.id.question_location).setOnTouchListener(new View.OnTouchListener() {
+        relativeLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {

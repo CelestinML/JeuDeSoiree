@@ -53,7 +53,7 @@ public class QuestionFragment extends Fragment {
             }
         }
         if (photosNb == 0) {
-            ((ViewManager) view).removeView(photoLayout);
+            ((ViewManager) view.findViewById(R.id.container)).removeView(photoLayout);
             return;
         }
         for (Player player : question.players) {
