@@ -2,6 +2,7 @@ package com.example.schlouky;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,6 +22,10 @@ import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,7 +36,7 @@ public class QuestionFragment extends Fragment {
     private LinearLayout photoLayout;
 
     private int layoutWidth;
-    ArrayList<Bitmap> photosToDisplay = new ArrayList<>();
+    ArrayList<Uri> uriToDisplay = new ArrayList<>();
     ViewManager viewManager;
 
     public QuestionFragment() {
@@ -48,14 +53,14 @@ public class QuestionFragment extends Fragment {
             @Override
             public void run() {
                 layoutWidth = root.getMeasuredWidth();
-                if (photosToDisplay.size() == 0) {
+                if (uriToDisplay.size() == 0) {
                     viewManager.removeView(photoLayout);
                 } else {
-                    int maxImageWidth = (layoutWidth - 4 * 15) / 3;
-                    for (Bitmap photo : photosToDisplay) {
+                    int maxImageWidth = (layoutWidth - 4 * 15) / uriToDisplay.size();
+                    for (Uri uri : uriToDisplay) {
                         ImageView photoView = new ImageView(getContext());
+                        loadPhoto(uri, photoView);
 
-                        photoView.setImageBitmap(photo);
                         photoView.setAdjustViewBounds(true);
                         photoView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 
@@ -80,47 +85,61 @@ public class QuestionFragment extends Fragment {
 
         for (Player player : question.players) {
             if (player.photoUri != null) {
-                photosToDisplay.add(loadPhoto(player.photoUri, player.photoPath));
+                uriToDisplay.add(player.photoUri);
             }
         }
 
         viewManager = ((ViewManager) view);
     }
 
-    private Bitmap loadPhoto(Uri uri, String path) {
-        try {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContext().getContentResolver(), uri);
-            ExifInterface exif = null;
-            try {
-                File pictureFile = new File(path);
-                exif = new ExifInterface(pictureFile.getAbsolutePath());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    private void loadPhoto(Uri uri, ImageView targetImageView) {
+        Glide.with(this)
+                .asBitmap()
+                .load(uri)
+                .into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
 
-            int orientation = ExifInterface.ORIENTATION_NORMAL;
+                    }
 
-            if (exif != null)
-                orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-
-            switch (orientation) {
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    bitmap = rotateBitmap(bitmap, 90);
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    bitmap = rotateBitmap(bitmap, 180);
-                    break;
-
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    bitmap = rotateBitmap(bitmap, 270);
-                    break;
-            }
-
-            return bitmap;
-
-        } catch (IOException e) {
-            return null;
-        }
+                    @Override
+                    public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                        targetImageView.setImageBitmap(resource);
+                    }
+                });
+        //try {
+        //    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContext().getContentResolver(), uri);
+        //    ExifInterface exif = null;
+        //    try {
+        //        File pictureFile = new File(path);
+        //        exif = new ExifInterface(pictureFile.getAbsolutePath());
+        //    } catch (IOException e) {
+        //        e.printStackTrace();
+        //    }
+//
+        //    int orientation = ExifInterface.ORIENTATION_NORMAL;
+//
+        //    if (exif != null)
+        //        orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+//
+        //    switch (orientation) {
+        //        case ExifInterface.ORIENTATION_ROTATE_90:
+        //            bitmap = rotateBitmap(bitmap, 90);
+        //            break;
+        //        case ExifInterface.ORIENTATION_ROTATE_180:
+        //            bitmap = rotateBitmap(bitmap, 180);
+        //            break;
+//
+        //        case ExifInterface.ORIENTATION_ROTATE_270:
+        //            bitmap = rotateBitmap(bitmap, 270);
+        //            break;
+        //    }
+//
+        //    return bitmap;
+//
+        //} catch (IOException e) {
+        //    return null;
+        //}
     }
 
     public static Bitmap rotateBitmap(Bitmap bitmap, int degrees) {
