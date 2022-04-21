@@ -44,6 +44,10 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -203,11 +207,7 @@ public class SetupActivity extends AppCompatActivity {
         ImageView photoView = view.findViewById(R.id.imageView);
 
         if (photoUri != null) {
-            Bitmap loadedPhoto = loadPhoto(photoUri, photoPath);
-
-            if (loadedPhoto != null) {
-                photoView.setImageBitmap(loadedPhoto);
-            }
+            loadPhoto(photoUri, photoView);
         }
 
         photoView.setOnClickListener(new View.OnClickListener() {
@@ -449,8 +449,7 @@ public class SetupActivity extends AppCompatActivity {
             Uri outputUri = Uri.fromFile(output);
             sendBroadcast(new Intent(
                     Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, outputUri));
-            Bitmap imageBitmap = loadPhoto(outputUri, output.getPath());
-            targetImageView.setImageBitmap(imageBitmap);
+            loadPhoto(outputUri, targetImageView);
             for (int i = 0; i < players.size(); i++) {
                 if (players.get(i).name == targetPlayerName) {
                     players.get(i).photoPath = currentPhotoPath;
@@ -481,47 +480,20 @@ public class SetupActivity extends AppCompatActivity {
         return imageFile;
     }
 
-    private Bitmap loadPhoto(Uri uri, String path) {
-        try {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
-            ExifInterface exif = null;
-            try {
-                File pictureFile = new File(path);
-                exif = new ExifInterface(pictureFile.getAbsolutePath());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    private void loadPhoto(Uri uri, ImageView targetImageView) {
+        Glide.with(this)
+                .asBitmap()
+                .load(uri)
+                .into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
 
-            int orientation = ExifInterface.ORIENTATION_NORMAL;
+                    }
 
-            if (exif != null)
-                orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-
-            switch (orientation) {
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    bitmap = rotateBitmap(bitmap, 90);
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    bitmap = rotateBitmap(bitmap, 180);
-                    break;
-
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    bitmap = rotateBitmap(bitmap, 270);
-                    break;
-            }
-
-            return bitmap;
-
-        } catch (IOException e) {
-            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-            Bitmap bitmap = BitmapFactory.decodeFile(path, bmOptions);
-            return bitmap;
-        }
-    }
-
-    public static Bitmap rotateBitmap(Bitmap bitmap, int degrees) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(degrees);
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                    @Override
+                    public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                        targetImageView.setImageBitmap(resource);
+                    }
+                });
     }
 }

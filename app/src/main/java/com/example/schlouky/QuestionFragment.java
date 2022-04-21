@@ -107,44 +107,5 @@ public class QuestionFragment extends Fragment {
                         targetImageView.setImageBitmap(resource);
                     }
                 });
-        //try {
-        //    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContext().getContentResolver(), uri);
-        //    ExifInterface exif = null;
-        //    try {
-        //        File pictureFile = new File(path);
-        //        exif = new ExifInterface(pictureFile.getAbsolutePath());
-        //    } catch (IOException e) {
-        //        e.printStackTrace();
-        //    }
-//
-        //    int orientation = ExifInterface.ORIENTATION_NORMAL;
-//
-        //    if (exif != null)
-        //        orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-//
-        //    switch (orientation) {
-        //        case ExifInterface.ORIENTATION_ROTATE_90:
-        //            bitmap = rotateBitmap(bitmap, 90);
-        //            break;
-        //        case ExifInterface.ORIENTATION_ROTATE_180:
-        //            bitmap = rotateBitmap(bitmap, 180);
-        //            break;
-//
-        //        case ExifInterface.ORIENTATION_ROTATE_270:
-        //            bitmap = rotateBitmap(bitmap, 270);
-        //            break;
-        //    }
-//
-        //    return bitmap;
-//
-        //} catch (IOException e) {
-        //    return null;
-        //}
-    }
-
-    public static Bitmap rotateBitmap(Bitmap bitmap, int degrees) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(degrees);
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 }
