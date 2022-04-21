@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
 import java.io.File;
@@ -29,6 +30,10 @@ public class QuestionFragment extends Fragment {
     private Question question;
     private LinearLayout photoLayout;
 
+    private int layoutWidth;
+    ArrayList<Bitmap> photosToDisplay = new ArrayList<>();
+    ViewManager viewManager;
+
     public QuestionFragment() {
 
     }
@@ -38,7 +43,32 @@ public class QuestionFragment extends Fragment {
                              ViewGroup container,
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        return inflater.inflate(R.layout.fragment_question, container, false);
+        View root = inflater.inflate(R.layout.fragment_question, container, false);
+        root.post(new Runnable() {
+            @Override
+            public void run() {
+                layoutWidth = root.getMeasuredWidth();
+                if (photosToDisplay.size() == 0) {
+                    viewManager.removeView(photoLayout);
+                } else {
+                    int maxImageWidth = (layoutWidth - 4 * 15) / 3;
+                    for (Bitmap photo : photosToDisplay) {
+                        ImageView photoView = new ImageView(getContext());
+
+                        photoView.setImageBitmap(photo);
+                        photoView.setAdjustViewBounds(true);
+                        photoView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+
+                        photoLayout.addView(photoView);
+
+                        ViewGroup.LayoutParams params = photoView.getLayoutParams();
+                        params.width = maxImageWidth;
+                        photoView.setLayoutParams(params);
+                    }
+                }
+            }
+        });
+        return root;
     }
 
     @Override
@@ -48,28 +78,13 @@ public class QuestionFragment extends Fragment {
         TextView questionView = (TextView) view.findViewById(R.id.question);
         questionView.setText(question.text);
 
-        ArrayList<Bitmap> photosToDisplay = new ArrayList<>();
-
         for (Player player : question.players) {
             if (player.photoUri != null) {
                 photosToDisplay.add(loadPhoto(player.photoUri, player.photoPath));
             }
         }
 
-        if (photosToDisplay.size() == 0) {
-            ((ViewManager) view).removeView(photoLayout);
-        }
-        else {
-            for (Bitmap photo : photosToDisplay) {
-                ImageView photoView = new ImageView(getContext());
-
-                photoView.setImageBitmap(photo);
-                photoView.setAdjustViewBounds(true);
-                photoView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-
-                photoLayout.addView(photoView);
-            }
-        }
+        viewManager = ((ViewManager) view);
     }
 
     private Bitmap loadPhoto(Uri uri, String path) {
