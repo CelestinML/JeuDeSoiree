@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -190,6 +191,23 @@ public class SetupActivity extends AppCompatActivity {
                 });
             }
         });
+
+        dialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+            @Override
+            public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
+                if (PlayerAlreadyExist(name.getText().toString(), null)) {
+                    Toast.makeText(SetupActivity.this, "Ce nom est déjà pris par un autre joueur.", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Ajout d'un nouveau joueur si appuit sur ok
+                    AddCard(name.getText().toString(), true, null, null);
+
+                    //Dismiss once everything is OK.
+                    dialog.dismiss();
+                }
+                return true;
+            }
+        });
+
         dialog.show();
     }
 
@@ -388,6 +406,41 @@ public class SetupActivity extends AppCompatActivity {
                 });
             }
         });
+
+        dialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+            @Override
+            public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
+                String playerOldName = nameView.getText().toString();
+                String playerNewName = namedialog.getText().toString();
+                if (PlayerAlreadyExist(playerNewName, playerOldName)) {
+                    Toast.makeText(SetupActivity.this, "Ce nom est déjà pris par un autre joueur.", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Assignation des nouvelles valeurs à la view du joueur déjà existante
+                    nameView.setText(playerNewName);
+
+                    // Modification du joueur
+                    for (int playerIndex = 0; playerIndex < players.size(); playerIndex++) {
+                        if (players.get(playerIndex).name == playerOldName) {
+                            players.get(playerIndex).name = playerNewName;
+                            break;
+                        }
+                    }
+
+                    //On actualise le listener de l'appareil photo avec le nouveau pseudo
+                    ImageView photoView = v.findViewById(R.id.imageView);
+                    photoView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            dispatchTakePictureIntent(photoView, playerNewName);
+                        }
+                    });
+                    //Dismiss once everything is OK.
+                    dialog.dismiss();
+                }
+                return true;
+            }
+        });
+
         dialog.show();
     }
 
